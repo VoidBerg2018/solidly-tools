@@ -1,6 +1,7 @@
 pyyaml
 requests
 streamlit
+protobuf==3.19.5
 web3
 st_btn_select
 pandas

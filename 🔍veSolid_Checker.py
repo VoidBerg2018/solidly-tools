@@ -5,6 +5,7 @@ from st_btn_select import st_btn_select
 import yaml
 import requests
 import pandas as pd
+from veSolidfunctions import *
 
 # App
 st.set_page_config(
@@ -15,51 +16,11 @@ st.set_page_config(
 
 # Params
 params_path = "params.yaml"
-
-
-def read_params(config_path):
-    with open(config_path) as yaml_file:
-        config = yaml.safe_load(yaml_file)
-    return config
-
+display_VoteNote = False
+display_AttachedNote = False
 
 config = read_params(params_path)
 
-# Title
-st.title("🔍 veSOLID Checker")
-
-# Select Button
-selection = st_btn_select(("veSOLID NFT ID", "Wallet address"))
-
-# Get SOLID Price
-paramsSOLID = {
-    "from": "0x777172D858dC1599914a1C4c6c9fC48c99a60990",
-    "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    "amount": "1000000000000000000",
-}
-
-try:
-    response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsSOLID)
-   # st.write(response.json())
-    SOLID_price = response.json()["maxReturn"]["tokens"]["0x777172d858dc1599914a1c4c6c9fc48c99a60990"]["price"]
-except Exception as e:
-    print(e)
-
-# Get ETH Price
-paramsETH = {
-    "from": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    "amount": "1000000000000000000",
-}
-
-try:
-   response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsETH)
-   ETH_price = response.json()["maxReturn"]["tokens"]["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]["price"]
-except Exception as e:
-    print(e)
-
-
-# Get total veSOLID supply
 try:
     provider_url = config["data"]["provider_url"]
     w3 = Web3(Web3.HTTPProvider(provider_url))
@@ -72,54 +33,39 @@ try:
     contract_address_Token = config["data"]["contract_Token_address"]
     contract_instance_Token = w3.eth.contract(address=Web3.toChecksumAddress(contract_address_Token), abi=abi_Token)
 
-    # Total veSOLID Supply
-    totalSupply = contract_instance_Token.functions.balanceOf(
-        "0x77730ed992D286c53F3A0838232c3957dAeaaF73").call() / 1000000000000000000
-
-    st.write("🏛️ Total veSOLID supply: " + '{:,}'.format(round(totalSupply)))
-    st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
-   # st.markdown("💵 Current ETH price: " + '{:,}'.format(round(ETH_price, 2)))
-
-    if totalSupply < 1.0:
-        totalSupply = 1
-
-
 except Exception as e:
     print(e)
+    st.markdown("Error Please Try Again")
+
+############################
+
+# Title
+st.title("🔍 veSOLID Checker")
+
+# Select Button
+selection = st_btn_select(("veSOLID NFT ID", "Wallet address"))
+
+# Get SOLID Price
+SOLID_price = Get_Solid_Price()
+
+# Get ETH Price
+ETH_price = Get_ETH_Price()
+
+# Get total veSOLID supply
+veSOLID_totalSupply = Get_Total_veSOLID_Supply(contract_instance_Token)
+
+
+st.write("🏛️ Total veSOLID supply: " + '{:,}'.format(round(veSOLID_totalSupply)))
+st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
+# st.markdown("💵 Current ETH price: " + '{:,}'.format(round(ETH_price, 2)))
+
 
 # Token ID Search
 if selection == "veSOLID NFT ID":
-    tokenid = st.number_input("veSOLID NFT ID:", min_value=1, format="%d")
-
-    # Read Data
     try:
-        # Balance veSOLID
-        bal = round(
-            contract_instance_veNFT.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
-            4,
-        )
+        tokenid = st.number_input("veSOLID NFT ID:", min_value=1, format="%d")
 
-        # Locked veSOLID
-        locked = round(
-            contract_instance_veNFT.functions.locked(tokenid).call()[0] / 1000000000000000000,
-            4,
-        )
-
-        # Lock End Date
-        lockend = time.strftime(
-            "%Y-%m-%d",
-            time.gmtime(int(contract_instance_veNFT.functions.locked(tokenid).call()[1])),
-        )
-
-        # Voted Last Epoch
-        voted = contract_instance_veNFT.functions.voted(tokenid).call()
-
-        # attached
-        attachments = contract_instance_veNFT.functions.attachments(tokenid).call()
-        if attachments == 0:
-            attached = False
-        else:
-            attached = True
+        NFT_data = read_NFT_data(tokenid, contract_instance_veNFT)
 
         # creating a single-element container
         placeholder = st.empty()
@@ -127,19 +73,14 @@ if selection == "veSOLID NFT ID":
         # Empty Placeholder Filled
         with placeholder.container():
             if tokenid:
-                st.markdown("🔒 Locked SOLID: " + '{:,}'.format(round(locked)))
-                st.markdown("🧾 veSOLID Balance: " + '{:,}'.format(round(bal)))
-                st.markdown("💰 Estimated USD Value: $" + '{:,}'.format(round(SOLID_price * locked)))
-                st.markdown("📈 Estimated ETH Value: " + '{:,}'.format(round((SOLID_price * locked)/ETH_price, 3)))
-                st.markdown("⏲️ Lock End Date: " + str(lockend))
-                st.markdown("🗳️ Vote Share: " + str(round(bal / totalSupply * 100, 4)) + "%")
-                st.markdown("✔️ Voted: " + ["Yes" if voted == True else "No"][0])
-                st.markdown("🗄️ Attached: " + ["Yes" if attached == True else "No"][0])
-
-                # st.markdown(
-                #     "⚡ Voted Current Epoch: "
-                #     + ["No" if votedcurrentepoch == False else "Yes"][0]
-                # )
+                st.markdown("🔒 Locked SOLID: " + '{:,}'.format(round(NFT_data["locked"])))
+                st.markdown("🧾 veSOLID Balance: " + '{:,}'.format(round(NFT_data["balance"])))
+                st.markdown("💰 Estimated USD Value: $" + '{:,}'.format(round(SOLID_price * NFT_data["locked"])))
+                st.markdown("📈 Estimated ETH Value: " + '{:,}'.format(round((SOLID_price * NFT_data["locked"])/ETH_price, 3)))
+                st.markdown("⏲️ Lock End Date: " + str(NFT_data["lockend"]))
+                st.markdown("🗳️ Vote Share: " + str(round(NFT_data["balance"] / veSOLID_totalSupply * 100, 4)) + "%")
+                st.markdown("✔️ Voted: " + ["Yes" if NFT_data["voted"] == True else "No"][0])
+                st.markdown("🗄️ Attached: " + ["Yes" if NFT_data["attached"] == True else "No"][0])
 
     except Exception as e:
         print(e)
@@ -154,9 +95,6 @@ if selection == "Wallet address":
         max_chars=42,
     )
 
-    voted = False
-    attached = False
-
     if wallet_address:
         # Read Data
         try:
@@ -164,62 +102,31 @@ if selection == "Wallet address":
             wallet_address = Web3.toChecksumAddress(wallet_address)
 
             # veSOLID Owner
-            tokenids = []
-            for index in range(100):
-                veSOLID = contract_instance_veNFT.functions.tokenOfOwnerByIndex(wallet_address, index).call()
-                if veSOLID > 0:
-                    tokenids.append(veSOLID)
-                else:
-                    break
+            tokenids = Get_NFTs_forWallet_Price(wallet_address, contract_instance_veNFT)
 
             # veSOLID DF
             tokendata = []
             for tokenid in tokenids:
-                # Balance veSOLID
-                bal = round(
-                    contract_instance_veNFT.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
-                    4,
-                )
 
-                # Locked veSOLID
-                locked = round(
-                    contract_instance_veNFT.functions.locked(tokenid).call()[0] / 1000000000000000000,
-                    4,
-                )
+                NFT_data = read_NFT_data(tokenid, contract_instance_veNFT)
 
-                # Lock End Date
-                lockend = time.strftime(
-                    "%Y-%m-%d",
-                    time.gmtime(int(contract_instance_veNFT.functions.locked(tokenid).call()[1])),
-                )
+                if NFT_data["voted"]:
+                    display_VoteNote = True
 
-                # Voted Last Epoch
-                votedThis = contract_instance_veNFT.functions.voted(tokenid).call()
-
-                # attached
-                attachments = contract_instance_veNFT.functions.attachments(tokenid).call()
-                if attachments == 0:
-                    attachedThis = False
-                else:
-                    attachedThis = True
-
-                if votedThis:
-                    voted = True
-
-                if attachedThis:
-                    attached = True
+                if NFT_data["attached"]:
+                    display_AttachedNote = True
 
                 tokendata.append(
                     {
                         "🔢 Token ID": tokenid,
-                        "🔒 Locked SOLID": round(locked),
-                        "🧾 veSOLID Balance": round(bal),
-                        "💰 Estimated USD Value": round(SOLID_price * locked),
-                        "📈 Estimated ETH Value": round((SOLID_price * locked) / ETH_price, 3),
-                        "⏲️ Lock End Date": lockend,
-                        "🗳️ Vote Share %": round(bal / totalSupply * 100,4),
-                        "✔️ Voted": ["Yes" if votedThis == True else "No"][0],
-                        "🗄️ Attached": ["Yes" if attachedThis == True else "No"][0]
+                        "🔒 Locked SOLID": round(NFT_data["locked"]),
+                        "🧾 veSOLID Balance": round(NFT_data["balance"]),
+                        "💰 Estimated USD Value": round(SOLID_price * NFT_data["locked"]),
+                        "📈 Estimated ETH Value": round((SOLID_price * NFT_data["locked"]) / ETH_price, 3),
+                        "⏲️ Lock End Date": NFT_data["lockend"],
+                        "🗳️ Vote Share %": round(NFT_data["balance"] / veSOLID_totalSupply * 100,4),
+                        "✔️ Voted": ["Yes" if NFT_data["voted"] == True else "No"][0],
+                        "🗄️ Attached": ["Yes" if NFT_data["attached"] == True else "No"][0]
 
                     }
                 )
@@ -238,8 +145,6 @@ if selection == "Wallet address":
             else:
                 st.markdown(":red[No veSOLID NFTs found]")
 
-
-
         except Exception as e:
             print(e)
             st.markdown("Error Please Try Again")
@@ -248,9 +153,9 @@ if selection == "Wallet address":
 # Note
 note = """NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page. USD Values are just an estimate of prices pulled from Firebird API.   \n"""
 
-if voted:
+if display_VoteNote:
     note += """:red[If Voted is Yes you cannot sell/move your veSOLID NFT this epoch unless you reset your vote.]   \n"""
-if attached:
+if display_AttachedNote:
      note += """:red[If Attached is Yes you cannot sell/move your veSOLID NFT unless you detach it.]   \n"""
 
 note += """Thanks to ALMIGHTYABE for creating the original veTHE-Checker!"""

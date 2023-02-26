@@ -31,8 +31,7 @@ config = read_params(params_path)
 st.title("🔍 veSOLID Checker")
 
 # Select Button
-selection = st_btn_select(("Token ID", "Address"))
-#DEus dao 0x83b285e802d76055169b1c5e3bf21702b85b89cb
+selection = st_btn_select(("veSOLID NFT ID", "Wallet address"))
 
 # Get SOLID Price
 params = {
@@ -65,7 +64,7 @@ try:
     totalSupply = contract_instance_Token.functions.balanceOf(
         "0x77730ed992D286c53F3A0838232c3957dAeaaF73").call() / 1000000000000000000
 
-    st.write("Total veSOLID supply: " + '{:,}'.format(round(totalSupply)))
+    st.write("🏛️ Total veSOLID supply: " + '{:,}'.format(round(totalSupply)))
     st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
 
     if totalSupply < 1.0:
@@ -76,8 +75,8 @@ except Exception as e:
     print(e)
 
 # Token ID Search
-if selection == "Token ID":
-    tokenid = st.number_input("veSOLID Token ID:", min_value=1, format="%d")
+if selection == "veSOLID NFT ID":
+    tokenid = st.number_input("veSOLID NFT ID:", min_value=1, format="%d")
 
     # Read Data
     try:
@@ -124,7 +123,7 @@ if selection == "Token ID":
         st.markdown("Error Please Try Again")
 
 # Address Search
-if selection == "Address":
+if selection == "Wallet address":
     wallet_address = st.text_input(
         label="Wallet address:",
         placeholder="Enter your wallet address",
@@ -214,8 +213,7 @@ if selection == "Address":
 
 
  # Note
-st.markdown("#")
-st.markdown("#")
+
 st.caption(
  """
 NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page.

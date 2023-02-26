@@ -1,6 +1,4 @@
 from web3 import Web3
-from datetime import datetime, date, timezone
-from dateutil.relativedelta import relativedelta, TH
 import time
 import streamlit as st
 from st_btn_select import st_btn_select
@@ -116,6 +114,13 @@ if selection == "veSOLID NFT ID":
         # Voted Last Epoch
         voted = contract_instance_veNFT.functions.voted(tokenid).call()
 
+        # attached
+        attachments = contract_instance_veNFT.functions.attachments(tokenid).call()
+        if attachments == 0:
+            attached = False
+        else:
+            attached = True
+
         # creating a single-element container
         placeholder = st.empty()
 
@@ -129,6 +134,8 @@ if selection == "veSOLID NFT ID":
                 st.markdown("⏲️ Lock End Date: " + str(lockend))
                 st.markdown("🗳️ Vote Share: " + str(round(bal / totalSupply * 100, 4)) + "%")
                 st.markdown("✔️ Voted: " + ["Yes" if voted == True else "No"][0])
+                st.markdown("🗄️ Attached: " + ["Yes" if attached == True else "No"][0])
+
                 # st.markdown(
                 #     "⚡ Voted Current Epoch: "
                 #     + ["No" if votedcurrentepoch == False else "Yes"][0]
@@ -138,6 +145,7 @@ if selection == "veSOLID NFT ID":
         print(e)
         st.markdown("Error Please Try Again")
 
+
 # Address Search
 if selection == "Wallet address":
     wallet_address = st.text_input(
@@ -145,6 +153,9 @@ if selection == "Wallet address":
         placeholder="Enter your wallet address",
         max_chars=42,
     )
+
+    voted = False
+    attached = False
 
     if wallet_address:
         # Read Data
@@ -183,13 +194,20 @@ if selection == "Wallet address":
                 )
 
                 # Voted Last Epoch
-                voted = contract_instance_veNFT.functions.voted(tokenid).call()
+                votedThis = contract_instance_veNFT.functions.voted(tokenid).call()
 
-                # # Voted Current Epoch
-                # votedcurrentepoch = (
-                #     contract_instance2.functions.lastVoted(tokenid).call()
-                #     > currentepoch
-                # )
+                # attached
+                attachments = contract_instance_veNFT.functions.attachments(tokenid).call()
+                if attachments == 0:
+                    attachedThis = False
+                else:
+                    attachedThis = True
+
+                if votedThis:
+                    voted = True
+
+                if attachedThis:
+                    attached = True
 
                 tokendata.append(
                     {
@@ -200,10 +218,9 @@ if selection == "Wallet address":
                         "📈 Estimated ETH Value": round((SOLID_price * locked) / ETH_price, 3),
                         "⏲️ Lock End Date": lockend,
                         "🗳️ Vote Share %": round(bal / totalSupply * 100,4),
-                        "✔️ Voted": ["Yes" if voted == True else "No"][0],
-                        # "⚡ Voted Current Epoch": [
-                        #     "No" if votedcurrentepoch == False else "Yes"
-                        # ][0],
+                        "✔️ Voted": ["Yes" if votedThis == True else "No"][0],
+                        "🗄️ Attached": ["Yes" if attachedThis == True else "No"][0]
+
                     }
                 )
 
@@ -228,17 +245,13 @@ if selection == "Wallet address":
             st.markdown("Error Please Try Again")
 
 
+# Note
+note = """NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page. USD Values are just an estimate of prices pulled from Firebird API.   \n"""
 
- # Note
+if voted:
+    note += """:red[If Voted is Yes you cannot sell/move your veSOLID NFT this epoch unless you reset your vote.]   \n"""
+if attached:
+     note += """:red[If Attached is Yes you cannot sell/move your veSOLID NFT unless you detach it.]   \n"""
 
-st.caption(
- """
-NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page.
-
-USD Value is just an estimate of SOLID Price pulled from Firebird API.
-
-:red[If "Voted" is Yes you cannot sell your veSOLID this epoch unless you reset your vote.]
-
-Thanks to ALMIGHTYABE for creating the original veTHE-Checker!
-"""
- )
+note += """Thanks to ALMIGHTYABE for creating the original veTHE-Checker!"""
+st.caption(note)

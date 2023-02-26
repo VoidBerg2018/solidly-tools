@@ -34,18 +34,32 @@ st.title("🔍 veSOLID Checker")
 selection = st_btn_select(("veSOLID NFT ID", "Wallet address"))
 
 # Get SOLID Price
-params = {
+paramsSOLID = {
     "from": "0x777172D858dC1599914a1C4c6c9fC48c99a60990",
     "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     "amount": "1000000000000000000",
 }
 
 try:
-    response = requests.get("https://router.firebird.finance/ethereum/route", params=params)
+    response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsSOLID)
    # st.write(response.json())
     SOLID_price = response.json()["maxReturn"]["tokens"]["0x777172d858dc1599914a1c4c6c9fc48c99a60990"]["price"]
 except Exception as e:
     print(e)
+
+# Get ETH Price
+paramsETH = {
+    "from": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "amount": "1000000000000000000",
+}
+
+try:
+   response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsETH)
+   ETH_price = response.json()["maxReturn"]["tokens"]["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]["price"]
+except Exception as e:
+    print(e)
+
 
 # Get total veSOLID supply
 try:
@@ -66,6 +80,7 @@ try:
 
     st.write("🏛️ Total veSOLID supply: " + '{:,}'.format(round(totalSupply)))
     st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
+   # st.markdown("💵 Current ETH price: " + '{:,}'.format(round(ETH_price, 2)))
 
     if totalSupply < 1.0:
         totalSupply = 1
@@ -109,7 +124,8 @@ if selection == "veSOLID NFT ID":
             if tokenid:
                 st.markdown("🔒 Locked SOLID: " + '{:,}'.format(round(locked)))
                 st.markdown("🧾 veSOLID Balance: " + '{:,}'.format(round(bal)))
-                st.markdown("🤑 Estimated USD Value: $" + '{:,}'.format(round(SOLID_price * locked)))
+                st.markdown("💰 Estimated USD Value: $" + '{:,}'.format(round(SOLID_price * locked)))
+                st.markdown("📈 Estimated ETH Value: " + '{:,}'.format(round((SOLID_price * locked)/ETH_price, 3)))
                 st.markdown("⏲️ Lock End Date: " + str(lockend))
                 st.markdown("🗳️ Vote Share: " + str(round(bal / totalSupply * 100, 4)) + "%")
                 st.markdown("✔️ Voted: " + ["Yes" if voted == True else "No"][0])
@@ -180,7 +196,8 @@ if selection == "Wallet address":
                         "🔢 Token ID": tokenid,
                         "🔒 Locked SOLID": round(locked),
                         "🧾 veSOLID Balance": round(bal),
-                        "🤑 Estimated USD Value": round(SOLID_price * locked),
+                        "💰 Estimated USD Value": round(SOLID_price * locked),
+                        "📈 Estimated ETH Value": round((SOLID_price * locked) / ETH_price, 3),
                         "⏲️ Lock End Date": lockend,
                         "🗳️ Vote Share %": round(bal / totalSupply * 100,4),
                         "✔️ Voted": ["Yes" if voted == True else "No"][0],

@@ -4,8 +4,34 @@ import streamlit as st
 from st_btn_select import st_btn_select
 import yaml
 import requests
+from datetime import datetime
 import pandas as pd
 from veSolidfunctions import *
+
+
+def display_voted_pools(voted_pools, total_votes):
+    pooldata = []
+    for pool in voted_pools:
+
+        pooldata.append(
+        {
+            "🏊 Pool": pool["name"],
+            "🧾 Votes": round(pool["votecount"]),
+            "🧾 Votes (%)": round(pool["votecount"]/total_votes,2)*100
+            }
+        )
+
+
+    if pooldata:
+            pool_df = pd.DataFrame(pooldata)
+            pool_df.sort_values(by="🧾 Votes (%)", axis=0, ascending= False, inplace=True)
+
+            # creating a single-element container
+            placeholder = st.empty()
+
+            # Empty Placeholder Filled
+            with placeholder.container():
+                st.dataframe(pool_df)
 
 # App
 st.set_page_config(
@@ -80,29 +106,20 @@ if selection == "veSOLID NFT ID":
                 st.markdown("🗄️ Attached: " + ["Yes" if NFT_data["attached"] == True else "No"][0])
                 st.markdown("✔️ Voted: " + ["Yes" if NFT_data["voted"] == True else "No"][0])
 
-                pooldata = []
-                for pool in voted_pools:
+                display_voted_pools(voted_pools, NFT_data["balance"])
 
-                    pooldata.append(
-                        {
-                            "🔢 Pool": pool["name"],
-                            "🧾 Votes": round(pool["votecount"]),
-                            "🧾 Votes (%)": round(pool["votecount"]/NFT_data["balance"],2)*100
-                        }
-                    )
+        if st.button('Lookup historical votes'):
+            current_period = get_active_period(contract_instance_Voter)
+            first_period = 1672531200
+            period = current_period
 
-                if pooldata:
-                    pool_df = pd.DataFrame(pooldata)
-                    pool_df.sort_values(by="🧾 Votes (%)", axis=0, ascending= False, inplace=True)
-
-                    # creating a single-element container
-                    placeholder = st.empty()
-
-                    # Empty Placeholder Filled
-                    with placeholder.container():
-                            st.dataframe(pool_df)
-
-
+            while period > first_period:
+            # for each period
+                period = period - 604800
+                st.caption("Period started at "+datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'))
+                period_voted_pools = get_pools_voted_at_epoch(nftid=tokenid, period=period, web3=w3, contractinstance=contract_instance_Voter, abi=config["data"]["abi_Pool"])
+                period_total_votes = get_nft_votes_at_period(nftid=tokenid, period=period, contractinstance=contract_instance_Voter)
+                display_voted_pools(period_voted_pools, period_total_votes)
 
     except Exception as e:
         print(e)
@@ -200,12 +217,40 @@ if selection == "Wallet address":
                         with placeholder.container():
                             st.dataframe(pool_df)
 
+
+                if st.button('Lookup historical votes'):
+                    current_period = get_active_period(contract_instance_Voter)
+                    first_period = 1672531200
+                    period = current_period
+
+                    while period > first_period:
+                        # for each period
+                        period = period - 604800
+                        st.caption("Period started at " + datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'))
+
+                        for tokenid in tokenids:
+
+                            period_voted_pools = get_pools_voted_at_epoch(nftid=tokenid, period=period, web3=w3,
+                                                                          contractinstance=contract_instance_Voter,
+                                                                          abi=config["data"]["abi_Pool"])
+                            period_total_votes = get_nft_votes_at_period(nftid=tokenid, period=period,
+                                                                         contractinstance=contract_instance_Voter)
+                            if (period_voted_pools):
+                                st.caption("NFT ID: " + str(tokenid))
+                                display_voted_pools(period_voted_pools, period_total_votes)
+
             else:
                 st.markdown(":red[No veSOLID NFTs found]")
 
         except Exception as e:
             print(e)
             st.markdown("Error Please Try Again")
+
+
+
+
+        # get pools voted for period - periodPoolVote (index until return nix)
+            #get vote for pool at period - periodVotes
 
 
 # Note

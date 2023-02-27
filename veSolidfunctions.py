@@ -175,8 +175,39 @@ def get_nft_votes_for_pool(nftid, pooladdress, contractinstance):
     return contractinstance.functions.votes(nftid, pooladdress).call()
 
 
+def get_pools_voted_at_epoch(nftid , period, web3, contractinstance, abi):
+    go = True
+    pools = []
+    index = 0
+    while go == True:
+        try:
+            # get instance
+            pooladdress = contractinstance.functions.periodPoolVote(nftid, period, index).call()
+            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pooladdress), abi=abi)
 
+            symbol = get_pool_symbol(contract_instance_proxy_pool)
 
+            name = get_pool_name(contract_instance_proxy_pool)
+
+            # get vote count
+            vote_count = contractinstance.functions.periodVotes(nftid, period, pooladdress).call() / 1000000000000000000
+
+        except:
+            go = False
+
+        if go:
+            pools.append({"symbol":symbol, "name":name, "votecount":vote_count, "poolcontract":contract_instance_proxy_pool })
+            index = index + 1
+            if index == 100:
+                go = False
+
+    return pools
+
+def get_nft_votes_at_period(nftid, period, contractinstance):
+    return contractinstance.functions.periodUsedWeights(nftid, period).call() / 1000000000000000000
+
+def get_active_period(contractinstance):
+    return contractinstance.functions.activePeriod().call()
 
 
 

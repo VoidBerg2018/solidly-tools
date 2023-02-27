@@ -10,14 +10,14 @@ def read_params(config_path):
     return config
 
 ####################
-def read_NFT_data(ntf_id, contract_instance):
+def read_nft_data(ntf_id, contract_instance):
     # Read Data
     NFT_data = {
         "balance": 0,
         "locked": 0,
         "lockend": 0,
         "voted" : False,
-        "attached" : False
+        "attached" : False,
     }
 
     try:
@@ -54,10 +54,21 @@ def read_NFT_data(ntf_id, contract_instance):
 
     return NFT_data
 
+#########################
+def get_nft_votes(nftid, contract_instance):
+    votes = []
+
+    try:
+        votes = contract_instance.functions.poolVote(nftid).call()
+    except Exception as e:
+        print(e)
+
+    return votes
+
 
 ############################
 # Get SOLID Price
-def Get_Solid_Price():
+def get_solid_price():
     SOLID_price = 0
 
     paramsSOLID = {
@@ -68,7 +79,6 @@ def Get_Solid_Price():
 
     try:
         response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsSOLID)
-       # st.write(response.json())
         SOLID_price = response.json()["maxReturn"]["tokens"]["0x777172d858dc1599914a1c4c6c9fc48c99a60990"]["price"]
     except Exception as e:
         print(e)
@@ -77,7 +87,7 @@ def Get_Solid_Price():
 
 ####################
 # Get ETH Price
-def Get_ETH_Price():
+def get_eth_price():
     ETH_price = 0
 
     paramsETH = {
@@ -96,7 +106,7 @@ def Get_ETH_Price():
 
 ##########################
 # Get total veSOLID supply
-def Get_Total_veSOLID_Supply(contract_instance):
+def get_total_vesolid_supply(contract_instance):
     totalSupply = 0
 
     try:
@@ -114,7 +124,7 @@ def Get_Total_veSOLID_Supply(contract_instance):
 
 
 ###################
-def Get_NFTs_forWallet_Price(wallet_address, contract_instance):
+def get_nfts_forwallet(wallet_address, contract_instance):
     tokenids = []
 
     try:
@@ -133,3 +143,40 @@ def Get_NFTs_forWallet_Price(wallet_address, contract_instance):
         print(e)
 
     return tokenids
+
+######################
+def get_pools_for_vote_addresses(nftid, vote_addresses, web3, contract_instance_voter, abi):
+    pools = []
+    for vote_address in vote_addresses:
+        # get instance
+        contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(vote_address), abi=abi)
+
+        symbol = get_pool_symbol(contract_instance_proxy_pool)
+
+        name = get_pool_name(contract_instance_proxy_pool)
+
+        # get vote count
+        vote_count = contract_instance_voter.functions.votes(nftid, vote_address).call() / 1000000000000000000
+
+        # add
+        pools.append({"symbol":symbol, "name":name, "votecount":vote_count, "poolcontract":contract_instance_proxy_pool })
+
+    return pools
+
+
+
+def get_pool_symbol(contractinstance):
+    return contractinstance.functions.symbol().call()
+
+def get_pool_name(contractinstance):
+    return contractinstance.functions.name().call()
+
+def get_nft_votes_for_pool(nftid, pooladdress, contractinstance):
+    return contractinstance.functions.votes(nftid, pooladdress).call()
+
+
+
+
+
+
+

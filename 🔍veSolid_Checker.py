@@ -22,16 +22,10 @@ display_AttachedNote = False
 config = read_params(params_path)
 
 try:
-    provider_url = config["data"]["provider_url"]
-    w3 = Web3(Web3.HTTPProvider(provider_url))
-
-    abi_veNFT = config["data"]["abi_veNFT"]
-    contract_address_veNFT = config["data"]["contract_veNFT_address"]
-    contract_instance_veNFT = w3.eth.contract(address=contract_address_veNFT, abi=abi_veNFT)
-
-    abi_Token = config["data"]["abi_Token"]
-    contract_address_Token = config["data"]["contract_Token_address"]
-    contract_instance_Token = w3.eth.contract(address=Web3.toChecksumAddress(contract_address_Token), abi=abi_Token)
+    w3 = Web3(Web3.HTTPProvider(config["data"]["provider_url"]))
+    contract_instance_veNFT = w3.eth.contract(address=Web3.toChecksumAddress(config["data"]["contract_address_veNFT"]), abi=config["data"]["abi_veNFT"])
+    contract_instance_Token = w3.eth.contract(address=Web3.toChecksumAddress(config["data"]["contract_address_Token"]), abi=config["data"]["abi_Token"])
+    contract_instance_Voter = w3.eth.contract(address=Web3.toChecksumAddress(config["data"]["contract_address_Voter"]), abi=config["data"]["abi_Voter"])
 
 except Exception as e:
     print(e)
@@ -46,26 +40,30 @@ st.title("🔍 veSOLID Checker")
 selection = st_btn_select(("veSOLID NFT ID", "Wallet address"))
 
 # Get SOLID Price
-SOLID_price = Get_Solid_Price()
+SOLID_price = get_solid_price()
 
 # Get ETH Price
-ETH_price = Get_ETH_Price()
+ETH_price = get_eth_price()
 
 # Get total veSOLID supply
-veSOLID_totalSupply = Get_Total_veSOLID_Supply(contract_instance_Token)
+veSOLID_totalSupply = get_total_vesolid_supply(contract_instance_Token)
 
-
+# Write basic info
 st.write("🏛️ Total veSOLID supply: " + '{:,}'.format(round(veSOLID_totalSupply)))
 st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
 # st.markdown("💵 Current ETH price: " + '{:,}'.format(round(ETH_price, 2)))
-
 
 # Token ID Search
 if selection == "veSOLID NFT ID":
     try:
         tokenid = st.number_input("veSOLID NFT ID:", min_value=1, format="%d")
 
-        NFT_data = read_NFT_data(tokenid, contract_instance_veNFT)
+        # get NFT data
+        NFT_data = read_nft_data(tokenid, contract_instance_veNFT)
+        # get votes addresses
+        vote_addresses = get_nft_votes(nftid=tokenid, contract_instance=contract_instance_Voter)
+        # get pool data
+        voted_pools = get_pools_for_vote_addresses(nftid=tokenid, vote_addresses=vote_addresses, web3=w3,contract_instance_voter=contract_instance_Voter, abi=config["data"]["abi_Pool"])
 
         # creating a single-element container
         placeholder = st.empty()
@@ -79,8 +77,32 @@ if selection == "veSOLID NFT ID":
                 st.markdown("📈 Estimated ETH Value: " + '{:,}'.format(round((SOLID_price * NFT_data["locked"])/ETH_price, 3)))
                 st.markdown("⏲️ Lock End Date: " + str(NFT_data["lockend"]))
                 st.markdown("🗳️ Vote Share: " + str(round(NFT_data["balance"] / veSOLID_totalSupply * 100, 4)) + "%")
-                st.markdown("✔️ Voted: " + ["Yes" if NFT_data["voted"] == True else "No"][0])
                 st.markdown("🗄️ Attached: " + ["Yes" if NFT_data["attached"] == True else "No"][0])
+                st.markdown("✔️ Voted: " + ["Yes" if NFT_data["voted"] == True else "No"][0])
+
+                pooldata = []
+                for pool in voted_pools:
+
+                    pooldata.append(
+                        {
+                            "🔢 Pool": pool["name"],
+                            "🧾 Votes": round(pool["votecount"]),
+                            "🧾 Votes (%)": round(pool["votecount"]/NFT_data["balance"],2)*100
+                        }
+                    )
+
+                if pooldata:
+                    pool_df = pd.DataFrame(pooldata)
+                    pool_df.sort_values(by="🧾 Votes (%)", axis=0, ascending= False, inplace=True)
+
+                    # creating a single-element container
+                    placeholder = st.empty()
+
+                    # Empty Placeholder Filled
+                    with placeholder.container():
+                            st.dataframe(pool_df)
+
+
 
     except Exception as e:
         print(e)
@@ -102,13 +124,21 @@ if selection == "Wallet address":
             wallet_address = Web3.toChecksumAddress(wallet_address)
 
             # veSOLID Owner
-            tokenids = Get_NFTs_forWallet_Price(wallet_address, contract_instance_veNFT)
+            tokenids = get_nfts_forwallet(wallet_address, contract_instance_veNFT)
 
             # veSOLID DF
             tokendata = []
+            votedata = []
             for tokenid in tokenids:
 
-                NFT_data = read_NFT_data(tokenid, contract_instance_veNFT)
+                #read NFT data
+                NFT_data = read_nft_data(tokenid, contract_instance_veNFT)
+                # get votes addresses
+                vote_addresses = get_nft_votes(nftid=tokenid, contract_instance=contract_instance_Voter)
+                # get pool data
+                voted_pools = get_pools_for_vote_addresses(nftid=tokenid, vote_addresses=vote_addresses, web3=w3,
+                                                           contract_instance_voter=contract_instance_Voter,
+                                                           abi=config["data"]["abi_Pool"])
 
                 if NFT_data["voted"]:
                     display_VoteNote = True
@@ -118,22 +148,36 @@ if selection == "Wallet address":
 
                 tokendata.append(
                     {
-                        "🔢 Token ID": tokenid,
+                        "🔢 NFT ID": tokenid,
                         "🔒 Locked SOLID": round(NFT_data["locked"]),
                         "🧾 veSOLID Balance": round(NFT_data["balance"]),
                         "💰 Estimated USD Value": round(SOLID_price * NFT_data["locked"]),
                         "📈 Estimated ETH Value": round((SOLID_price * NFT_data["locked"]) / ETH_price, 3),
                         "⏲️ Lock End Date": NFT_data["lockend"],
                         "🗳️ Vote Share %": round(NFT_data["balance"] / veSOLID_totalSupply * 100,4),
-                        "✔️ Voted": ["Yes" if NFT_data["voted"] == True else "No"][0],
-                        "🗄️ Attached": ["Yes" if NFT_data["attached"] == True else "No"][0]
-
+                        "🗄️ Attached": ["Yes" if NFT_data["attached"] == True else "No"][0],
+                        "✔️ Voted": ["Yes" if NFT_data["voted"] == True else "No"][0]
                     }
                 )
 
+                if NFT_data["voted"]:
+                    pooldata = []
+                    for pool in voted_pools:
+                        pooldata.append(
+                            {
+                                "🏊 Pool": pool["name"],
+                                "🧾 Votes": round(pool["votecount"]),
+                                "🧾 Votes (%)": round(pool["votecount"] / NFT_data["balance"], 2) * 100
+                            }
+                        )
+
+                    votedata.append(
+                        {"id":tokenid,"pooldata":pooldata}
+                    )
+
             if tokendata:
                 veSOLID_df = pd.DataFrame(tokendata)
-                veSOLID_df.sort_values(by="🔢 Token ID", axis=0, inplace=True)
+                veSOLID_df.sort_values(by="🔢 NFT ID", axis=0, inplace=True)
 
                 # creating a single-element container
                 placeholder = st.empty()
@@ -142,6 +186,20 @@ if selection == "Wallet address":
                 with placeholder.container():
                     if wallet_address:
                         st.dataframe(veSOLID_df)
+
+                if votedata:
+                    for votenft in votedata:
+                        st.caption("✔️ Voted NFT ID: " + str(votenft["id"]))
+                        pool_df = pd.DataFrame(votenft["pooldata"])
+                        pool_df.sort_values(by="🧾 Votes (%)", axis=0, ascending=False, inplace=True)
+
+                        # creating a single-element container
+                        placeholder = st.empty()
+
+                        # Empty Placeholder Filled
+                        with placeholder.container():
+                            st.dataframe(pool_df)
+
             else:
                 st.markdown(":red[No veSOLID NFTs found]")
 
@@ -156,7 +214,7 @@ note = """NFA, DYOR -- This web app is in beta, I am not responsible for any inf
 if display_VoteNote:
     note += """:red[If Voted is Yes you cannot sell/move your veSOLID NFT this epoch unless you reset your vote.]   \n"""
 if display_AttachedNote:
-     note += """:red[If Attached is Yes you cannot sell/move your veSOLID NFT unless you detach it.]   \n"""
+    note += """:red[If Attached is Yes you cannot sell/move your veSOLID NFT unless you detach it.]   \n"""
 
 note += """Thanks to ALMIGHTYABE for creating the original veTHE-Checker!"""
 st.caption(note)

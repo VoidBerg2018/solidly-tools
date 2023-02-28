@@ -47,6 +47,7 @@ def show_total_votes_over_time():
 
     #st.altair_chart(chart)
     st.bar_chart(votes_df, x="epoch")
+    st.dataframe(votes_df)
 
 
 def show_votes_per_pool_over_time(pools, pools_votes_per_period, contract_instance_Voter):
@@ -59,7 +60,8 @@ def show_votes_per_pool_over_time(pools, pools_votes_per_period, contract_instan
         pools_votes_per_period_df[pool["symbol"]] = pools_votes_per_period[pool["symbol"]]
 
     st.bar_chart(pools_votes_per_period_df, x="epoch")
-
+    st.dataframe(pools_votes_per_period_df)
+    
     #create dataframe
     #pools_votes_per_period_df = pd.DataFrame(period_data, symbol_data, vote_data)
     #pools_votes_per_period_df.melt('epoch', var_name='symbol', value_name='votes')

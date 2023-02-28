@@ -9,15 +9,18 @@ import pandas as pd
 from veSolidfunctions import *
 
 
-def display_voted_pools(voted_pools, total_votes):
+def display_voted_pools(voted_pools, total_votes, contract_instance_Voter):
     pooldata = []
     for pool in voted_pools:
+
+        period_total_pool_votes = round(get_pool_votes_for_period(pooladdress=pool["address"], period=pool["period"], contract_instance_Voter=contract_instance_Voter))
 
         pooldata.append(
         {
             "🏊 Pool": pool["name"],
             "🧾 Votes": round(pool["votecount"]),
-            "🧾 Votes (%)": round(pool["votecount"]/total_votes,2)*100
+            "🧾 Votes (%)": round(pool["votecount"]/total_votes,2)*100,
+            "🧾 Votes (% of pool)": round(pool["votecount"]/period_total_pool_votes,2)*100
             }
         )
 
@@ -106,7 +109,7 @@ if selection == "veSOLID NFT ID":
                 st.markdown("🗄️ Attached: " + ["Yes" if NFT_data["attached"] == True else "No"][0])
                 st.markdown("✔️ Voted: " + ["Yes" if NFT_data["voted"] == True else "No"][0])
 
-                display_voted_pools(voted_pools, NFT_data["balance"])
+                display_voted_pools(voted_pools, NFT_data["balance"], contract_instance_Voter=contract_instance_Voter)
 
         if st.button('Lookup historical votes'):
             current_period = get_active_period(contract_instance_Voter)
@@ -115,11 +118,12 @@ if selection == "veSOLID NFT ID":
 
             while period > first_period:
             # for each period
+
+                st.caption("Votes for epoch "+datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'))
                 period = period - 604800
-                st.caption("Period started at "+datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'))
-                period_voted_pools = get_pools_voted_at_epoch(nftid=tokenid, period=period, web3=w3, contractinstance=contract_instance_Voter, abi=config["data"]["abi_Pool"])
+                period_voted_pools = get_pools_voted_at_period(nftid=tokenid, period=period, web3=w3, contractinstance=contract_instance_Voter, abi=config["data"]["abi_Pool"])
                 period_total_votes = get_nft_votes_at_period(nftid=tokenid, period=period, contractinstance=contract_instance_Voter)
-                display_voted_pools(period_voted_pools, period_total_votes)
+                display_voted_pools(period_voted_pools, period_total_votes, contract_instance_Voter=contract_instance_Voter)
 
     except Exception as e:
         print(e)
@@ -180,11 +184,14 @@ if selection == "Wallet address":
                 if NFT_data["voted"]:
                     pooldata = []
                     for pool in voted_pools:
+                        period_total_pool_votes = round(get_pool_votes_for_period(pooladdress=pool["address"], period=pool["period"],contract_instance_Voter=contract_instance_Voter))
+
                         pooldata.append(
                             {
                                 "🏊 Pool": pool["name"],
                                 "🧾 Votes": round(pool["votecount"]),
-                                "🧾 Votes (%)": round(pool["votecount"] / NFT_data["balance"], 2) * 100
+                                "🧾 Votes (%)": round(pool["votecount"] / NFT_data["balance"], 2) * 100,
+                                "🧾 Votes (% of pool)": round(pool["votecount"] / period_total_pool_votes, 2) * 100
                             }
                         )
 
@@ -206,7 +213,7 @@ if selection == "Wallet address":
 
                 if votedata:
                     for votenft in votedata:
-                        st.caption("✔️ Voted NFT ID: " + str(votenft["id"]))
+                        st.caption("✔️ Voted for next epoch NFT ID: " + str(votenft["id"]))
                         pool_df = pd.DataFrame(votenft["pooldata"])
                         pool_df.sort_values(by="🧾 Votes (%)", axis=0, ascending=False, inplace=True)
 
@@ -225,19 +232,21 @@ if selection == "Wallet address":
 
                     while period > first_period:
                         # for each period
-                        period = period - 604800
-                        st.caption("Period started at " + datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'))
 
+                        st.caption("Votes for epoch " + datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'))
+                        period = period - 604800
                         for tokenid in tokenids:
 
-                            period_voted_pools = get_pools_voted_at_epoch(nftid=tokenid, period=period, web3=w3,
+                            period_voted_pools = get_pools_voted_at_period(nftid=tokenid, period=period, web3=w3,
                                                                           contractinstance=contract_instance_Voter,
                                                                           abi=config["data"]["abi_Pool"])
                             period_total_votes = get_nft_votes_at_period(nftid=tokenid, period=period,
                                                                          contractinstance=contract_instance_Voter)
+
+
                             if (period_voted_pools):
                                 st.caption("NFT ID: " + str(tokenid))
-                                display_voted_pools(period_voted_pools, period_total_votes)
+                                display_voted_pools(period_voted_pools, period_total_votes, contract_instance_Voter=contract_instance_Voter)
 
             else:
                 st.markdown(":red[No veSOLID NFTs found]")

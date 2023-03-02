@@ -7,6 +7,16 @@ from datetime import datetime
 
 first_solidly_vote_period_start = 1671926400
 
+token_prices = {
+        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48":1,  #USDC
+        "0xde1e704dae0b4051e80dabb26ab6ad6c12262da0":1, #DEI ;)
+        "0xdac17f958d2ee523a2206206994597c13d831ec7":1, #USDT
+        "0x5f98805a4e8be255a32880fdec7f6728c6568ba0":1, #LUSD
+        "0x853d955acef822db058eb8505911ed77f175b99e":1, #FRAX
+        "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3":1, #MIM
+        "0x8d6cebd76f18e1558d4db88138e2defb3909fad6":1, #MAI
+                }
+
 ####################
 def read_params(config_path):
     with open(config_path) as yaml_file:
@@ -73,40 +83,42 @@ def get_nft_votes(nftid, contract_instance):
 ############################
 # Get SOLID Price
 def get_solid_price():
-    SOLID_price = 0
-
-    paramsSOLID = {
-        "from": "0x777172D858dC1599914a1C4c6c9fC48c99a60990",
-        "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        "amount": "1000000000000000000",
-    }
-
-    try:
-        response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsSOLID)
-        SOLID_price = response.json()["maxReturn"]["tokens"]["0x777172d858dc1599914a1c4c6c9fc48c99a60990"]["price"]
-    except Exception as e:
-        print(e)
+    SOLID_price = get_token_price("0x777172d858dc1599914a1c4c6c9fc48c99a60990")
 
     return SOLID_price
 
-####################
 # Get ETH Price
 def get_eth_price():
-    ETH_price = 0
+    ETH_price = get_token_price("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")
 
-    paramsETH = {
-        "from": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    return ETH_price
+
+def get_token_price_firebird(token_address):
+    price = 0
+    token_address = str(token_address).lower()
+    params = {
+        "from": token_address,
         "to": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         "amount": "1000000000000000000",
     }
 
     try:
-       response = requests.get("https://router.firebird.finance/ethereum/route", params=paramsETH)
-       ETH_price = response.json()["maxReturn"]["tokens"]["0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]["price"]
+        response = requests.get("https://router.firebird.finance/ethereum/route", params=params)
+        price = response.json()["maxReturn"]["tokens"][token_address]["price"]
     except Exception as e:
         print(e)
 
-    return ETH_price
+    return price
+
+def get_token_price(token_address):
+    price = 0
+    if str(token_address) in token_prices:
+        price = token_prices[str(token_address)]
+    else:
+        price = get_token_price_firebird(token_address)
+        token_prices[str(token_address)] = price
+    return price
+
 
 ##########################
 # Get total veSOLID supply
@@ -198,7 +210,10 @@ def get_pools_voted_at_period(nftid , period, web3, contractinstance, abi):
             # get vote count
             vote_count = contractinstance.functions.periodVotes(nftid, period, pooladdress).call() / 1000000000000000000
 
-        except:
+
+        except Exception as e:
+
+            print(e)
             go = False
 
         if go:
@@ -215,7 +230,7 @@ def get_nft_votes_at_period(nftid, period, contractinstance):
 def get_active_period(contractinstance):
     return contractinstance.functions.activePeriod().call()
 
-def get_all_pools(contractinstance, web3, abi):
+def get_all_pools(contractinstance, web3, abi_pool, abi_gauge, abi_token):
     pools = []
     go = True
     index = 0
@@ -223,18 +238,37 @@ def get_all_pools(contractinstance, web3, abi):
         try:
             # get instance
             pooladdress = contractinstance.functions.pools(index).call()
-            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pooladdress), abi=abi)
+            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pooladdress), abi=abi_pool)
 
             symbol = get_pool_symbol(contract_instance_proxy_pool)
-
             name = get_pool_name(contract_instance_proxy_pool)
+            token0_address = contract_instance_proxy_pool.functions.token0().call()
+            token1_address = contract_instance_proxy_pool.functions.token1().call()
 
-        except:
+            token0_symbol = get_token_symbol(address=token0_address, web3=web3, abi=abi_token)
+            token1_symbol = get_token_symbol(address=token1_address, web3=web3, abi=abi_token)
+
+            token0_decimals = get_token_decimals(address=token0_address, web3=web3, abi=abi_token)
+            token1_decimals = get_token_decimals(address=token1_address, web3=web3, abi=abi_token)
+
+            gauge_address = contractinstance.functions.gauges(pooladdress).call()
+            feedist_address = contractinstance.functions.feeDists(pooladdress).call()
+
+            contract_instance_proxy_gauge = web3.eth.contract(address=Web3.toChecksumAddress(gauge_address), abi=abi_gauge)
+            bribe_address = contract_instance_proxy_gauge.functions.bribe().call()
+
+
+        except Exception as e:
+
+            print(e)
             go = False
 
         if go:
-            #pools.append({"symbol": symbol, "name": name, "address":pooladdress, "poolcontract": contract_instance_proxy_pool})
-            pools.append({"symbol": symbol, "name": name, "address": pooladdress})
+            pools.append({"symbol": symbol, "name": name,
+                          "address": pooladdress, "gauge_address":gauge_address,"feedist_address":feedist_address,"bribe_address":bribe_address,
+                          "token0_address": token0_address,"token1_address": token1_address,"token0_symbol":token0_symbol,"token1_symbol":token1_symbol,
+                          "token0_decimals":token0_decimals,"token1_decimals":token1_decimals
+                          })
             index = index + 1
             if index == 200:
                 go = False
@@ -257,6 +291,11 @@ def load_pool_list(filename):
     with open(filename) as data_file:
         pools = json.load(data_file)
     return pools
+
+def get_pool_from_list(symbol, list):
+    for pool in list:
+        if pool["symbol"] == symbol:
+            return pool
 
 def load_pools_votes_per_period(filename):
     with open(filename) as data_file:
@@ -324,5 +363,46 @@ def get_list_of_periods(contract_instance_Voter, period_end):
         total_votes = get_total_votes_for_period(period, contract_instance_Voter)
         period_data.append({"epoch": datum})
 
-
     return period_data
+
+
+
+def set_contracts_for_pools(pools, web3, abi_pool, abi_gauge, abi_feedist, abi_bribe):
+    for pool in pools:
+        try:
+            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pool["address"]), abi=abi_pool)
+            contract_instance_gauge = web3.eth.contract(address=Web3.toChecksumAddress(pool["gauge_address"]),  abi=abi_gauge)
+            contract_instance_feedist = web3.eth.contract(address=Web3.toChecksumAddress(pool["feedist_address"]),  abi=abi_feedist)
+            contract_instance_bribe = web3.eth.contract(address=Web3.toChecksumAddress(pool["bribe_address"]), abi=abi_bribe)
+            pool["contract_pool"] = contract_instance_proxy_pool
+            pool["contract_gauge"] = contract_instance_gauge
+            pool["contract_feedist"] = contract_instance_feedist
+            pool["contract_bribe"] = contract_instance_bribe
+        except Exception as e:
+            print(e)
+
+def get_token_symbol(address, web3, abi):
+    contract_instance = web3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+    return contract_instance.functions.symbol().call()
+
+def get_token_decimals(address, web3, abi):
+    contract_instance = web3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+    return contract_instance.functions.decimals().call()
+
+def get_token_data(address, web3, abi):
+    token_data = {}
+    try:
+        contract_instance = web3.eth.contract(address=Web3.toChecksumAddress(address), abi=abi)
+        token_data["decimals"] = contract_instance.functions.decimals().call()
+        token_data["symbol"] = contract_instance.functions.symbol().call()
+
+    except Exception as e:
+        print(e)
+
+    return token_data
+
+def avoid_0_str(number):
+    if number>0:
+        return str(number)
+    else:
+        return ""

@@ -16,6 +16,7 @@ def display_pool_rewards(pool):
         first_period = first_solidly_vote_period_start
         period = get_active_period(contract_instance_Voter)
         pooldata = []
+        index = 0
         while period > first_period:
             fees_token0 = pool["contract_feedist"].functions.periodRewardAmount(period, pool["token0_address"]).call()
             fees_token1 = pool["contract_feedist"].functions.periodRewardAmount(period, pool["token1_address"]).call()
@@ -55,10 +56,15 @@ def display_pool_rewards(pool):
 
             apr_per_votes = round(((rewards_per_votes * 52) / (get_solid_price() * 10000)) * 100, 2)
 
+            epochstart = datetime.utcfromtimestamp(period + 604800).strftime('%Y-%m-%d')
+           # if index == 0:
+            #    epochstart = datetime.utcfromtimestamp(period + 604800).strftime('%Y-%m-%d') + " (upcoming)"
+           # if index == 1:
+           #     epochstart = datetime.utcfromtimestamp(period + 604800).strftime('%Y-%m-%d') + " (current)"
 
             pooldata.append(
                 {
-                    "🕰️ Epoch starting at": datetime.utcfromtimestamp(period + 604800).strftime('%Y-%m-%d'),
+                    "🕰️ Epoch starting at": epochstart,
                     "🪙 " + pool["token0_symbol"] + " fees": avoid_0_str(fees_token0),
                     "🪙 " + pool["token1_symbol"] + " fees": avoid_0_str(fees_token1),
                     "💵 Sum fees ($) ": avoid_0_str(sum_fees_usd),
@@ -71,6 +77,7 @@ def display_pool_rewards(pool):
                 }
             )
             period = period - 604800
+            index = index + 1
 
         if pooldata:
             fees_df = pd.DataFrame(pooldata)
@@ -108,21 +115,25 @@ SOLID_price = get_solid_price()
 st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
 
 ### Get pool list data
-#pool_list = get_all_pools(contractinstance=contract_instance_Voter, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_token=config["data"]["abi_Token"])
+pool_dict = {}
+# Load pool data
+pool_dict = load_pool_dict(filename='pools.json')
+# Add if missing
+pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_token=config["data"]["abi_Token"])
 # Save pool data
-#save_pool_list_to_file(filename='pools.json', pools=pool_list)
-# Read pool data
-pool_list = load_pool_list(filename='pools.json')
+#save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
+
+
 try:
     w3 = Web3(Web3.HTTPProvider(config["data"]["provider_url"]))
-    set_contracts_for_pools(pools=pool_list, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
+    set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
 
-    display_pool_rewards(get_pool_from_list("vAMM-SOLID/WETH", pool_list))
-    display_pool_rewards(get_pool_from_list("sAMM-FRAX/USDT", pool_list))
-    display_pool_rewards(get_pool_from_list("sAMM-FRAX/USDC", pool_list))
-    display_pool_rewards(get_pool_from_list("sAMM-frxETH/WETH", pool_list))
-    display_pool_rewards(get_pool_from_list("vAMM-FXS/frxETH", pool_list))
-    display_pool_rewards(get_pool_from_list("vAMM-BLUR/WETH", pool_list))
+    display_pool_rewards(get_pool_from_dict("vAMM-SOLID/WETH", pool_dict))
+    display_pool_rewards(get_pool_from_dict("sAMM-FRAX/USDT", pool_dict))
+    display_pool_rewards(get_pool_from_dict("sAMM-FRAX/USDC", pool_dict))
+    display_pool_rewards(get_pool_from_dict("sAMM-frxETH/WETH", pool_dict))
+    display_pool_rewards(get_pool_from_dict("vAMM-FXS/frxETH", pool_dict))
+    display_pool_rewards(get_pool_from_dict("vAMM-BLUR/WETH", pool_dict))
 
 except Exception as e:
     print(e)
@@ -130,8 +141,8 @@ except Exception as e:
 
 if st.button('Lookup all pools'):
     try:
-        for pool in pool_list:
-            display_pool_rewards(pool)
+        for key in pool_dict:
+            display_pool_rewards(pool_dict[key])
     except Exception as e:
         print(e)
         st.markdown("Error Please Try Again")

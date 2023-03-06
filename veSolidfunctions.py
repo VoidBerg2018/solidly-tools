@@ -5,7 +5,7 @@ import requests
 import json
 from datetime import datetime
 
-first_solidly_vote_period_start = 1671926400
+first_solidly_vote_period_start = 1672272000
 
 token_prices = {
         "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48":1,  #USDC
@@ -230,33 +230,39 @@ def get_nft_votes_at_period(nftid, period, contractinstance):
 def get_active_period(contractinstance):
     return contractinstance.functions.activePeriod().call()
 
-def get_all_pools(contractinstance, web3, abi_pool, abi_gauge, abi_token):
-    pools = []
+
+def pools_add_missing(pools_dict, contractinstance, web3, abi_pool, abi_gauge, abi_token):
     go = True
-    index = 0
+    index = len(pools_dict)
     while go == True:
         try:
             # get instance
             pooladdress = contractinstance.functions.pools(index).call()
-            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pooladdress), abi=abi_pool)
+            if not (pooladdress in pools_dict):
+                contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pooladdress), abi=abi_pool)
 
-            symbol = get_pool_symbol(contract_instance_proxy_pool)
-            name = get_pool_name(contract_instance_proxy_pool)
-            token0_address = contract_instance_proxy_pool.functions.token0().call()
-            token1_address = contract_instance_proxy_pool.functions.token1().call()
+                symbol = get_pool_symbol(contract_instance_proxy_pool)
+                name = get_pool_name(contract_instance_proxy_pool)
+                token0_address = contract_instance_proxy_pool.functions.token0().call()
+                token1_address = contract_instance_proxy_pool.functions.token1().call()
 
-            token0_symbol = get_token_symbol(address=token0_address, web3=web3, abi=abi_token)
-            token1_symbol = get_token_symbol(address=token1_address, web3=web3, abi=abi_token)
+                token0_symbol = get_token_symbol(address=token0_address, web3=web3, abi=abi_token)
+                token1_symbol = get_token_symbol(address=token1_address, web3=web3, abi=abi_token)
 
-            token0_decimals = get_token_decimals(address=token0_address, web3=web3, abi=abi_token)
-            token1_decimals = get_token_decimals(address=token1_address, web3=web3, abi=abi_token)
+                token0_decimals = get_token_decimals(address=token0_address, web3=web3, abi=abi_token)
+                token1_decimals = get_token_decimals(address=token1_address, web3=web3, abi=abi_token)
 
-            gauge_address = contractinstance.functions.gauges(pooladdress).call()
-            feedist_address = contractinstance.functions.feeDists(pooladdress).call()
+                gauge_address = contractinstance.functions.gauges(pooladdress).call()
+                feedist_address = contractinstance.functions.feeDists(pooladdress).call()
 
-            contract_instance_proxy_gauge = web3.eth.contract(address=Web3.toChecksumAddress(gauge_address), abi=abi_gauge)
-            bribe_address = contract_instance_proxy_gauge.functions.bribe().call()
+                contract_instance_proxy_gauge = web3.eth.contract(address=Web3.toChecksumAddress(gauge_address), abi=abi_gauge)
+                bribe_address = contract_instance_proxy_gauge.functions.bribe().call()
 
+                pools_dict[pooladdress] = {"symbol": symbol, "name": name,
+                          "address": pooladdress, "gauge_address":gauge_address,"feedist_address":feedist_address,"bribe_address":bribe_address,
+                          "token0_address": token0_address,"token1_address": token1_address,"token0_symbol":token0_symbol,"token1_symbol":token1_symbol,
+                          "token0_decimals":token0_decimals,"token1_decimals":token1_decimals
+                          }
 
         except Exception as e:
 
@@ -264,16 +270,13 @@ def get_all_pools(contractinstance, web3, abi_pool, abi_gauge, abi_token):
             go = False
 
         if go:
-            pools.append({"symbol": symbol, "name": name,
-                          "address": pooladdress, "gauge_address":gauge_address,"feedist_address":feedist_address,"bribe_address":bribe_address,
-                          "token0_address": token0_address,"token1_address": token1_address,"token0_symbol":token0_symbol,"token1_symbol":token1_symbol,
-                          "token0_decimals":token0_decimals,"token1_decimals":token1_decimals
-                          })
+
             index = index + 1
-            if index == 200:
+            if index == 2000:
                 go = False
 
-    return pools
+    return pools_dict
+
 
 def get_pool_votes_for_period(pooladdress, period, contract_instance_Voter):
     return contract_instance_Voter.functions.periodWeights(pooladdress, period ).call() / 1000000000000000000
@@ -282,62 +285,73 @@ def get_total_votes_for_period(period, contractinstance):
     answer = contractinstance.functions.periodTotalWeight(period).call() / 1000000000000000000
     return answer
 
-def save_pool_list_to_file(filename, pools):
+def save_pool_dict_to_file(filename, pools):
     with open(filename, 'w') as f:
         json.dump(pools, f, sort_keys=True, indent=4, ensure_ascii=False)
         print(filename +" saved!")
 
-def load_pool_list(filename):
+def load_pool_dict(filename):
     with open(filename) as data_file:
         pools = json.load(data_file)
     return pools
 
-def get_pool_from_list(symbol, list):
-    for pool in list:
-        if pool["symbol"] == symbol:
-            return pool
+def save_bribe_pool_dict_to_file(filename, pools):
+    with open(filename, 'w',encoding="utf-8") as f:
+        json.dump(pools, f, sort_keys=True, indent=4, ensure_ascii=False)
+        print(filename +" saved!")
+
+def load_bribe_pool_dict(filename):
+    with open(filename,encoding="utf-8") as data_file:
+        pools = json.load(data_file)
+    return pools
+
+
+
+def get_pool_from_dict(symbol, pool_dict):
+    for key in pool_dict:
+        if pool_dict[key]["symbol"] == symbol:
+            return pool_dict[key]
 
 def load_pools_votes_per_period(filename):
     with open(filename) as data_file:
         pools_votes_per_period = json.load(data_file)
     return pools_votes_per_period
 
-def get_pools_votes_per_period(pools, contract_instance_Voter):
-    pools_votes_per_period = {}
+def pools_votes_per_period_add_missing(pool_dict, pools_votes_per_period, contract_instance_Voter):
     current_period = get_active_period(contract_instance_Voter) - 604800
     period = current_period
     first_period = first_solidly_vote_period_start
     while period > first_period:
         try:
             # for each period
-            total_votes = get_total_votes_for_period(period, contract_instance_Voter)
+            if not (str(period) in pools_votes_per_period):
+                total_votes = get_total_votes_for_period(period, contract_instance_Voter)
+                pools_votes_per_period[str(period)] = {}
+                for key in pool_dict:
 
-            for pool in pools:
-                if period == current_period:
-                    pools_votes_per_period[pool["symbol"]] = []
-
-                pool_votes = round(get_pool_votes_for_period(pool["address"], period, contract_instance_Voter))
-                perc_votes = round(pool_votes * 100 / total_votes, 2)
-                pools_votes_per_period[pool["symbol"]].append(perc_votes)
-                # st.caption( pool["symbol"]+ "   "  + datum + "      " + str(pool_votes) + "      " + str(perc_votes))
+                    pool_votes = round(get_pool_votes_for_period(pool_dict[key]["address"], period, contract_instance_Voter))
+                    perc_votes = round(pool_votes * 100 / total_votes, 2)
+                    pools_votes_per_period[str(period)][pool_dict[key]["symbol"]] = perc_votes
+                    # st.caption( pool["symbol"]+ "   "  + datum + "      " + str(pool_votes) + "      " + str(perc_votes))
 
             period = period - 604800
 
         except Exception as e:
             print(e)
 
-    return pools_votes_per_period
 
-def get_pools_votes_for_next_epoch(pools, contract_instance_Voter):
+
+
+def get_pools_votes_for_next_epoch(pool_dict, contract_instance_Voter):
     current_period = get_active_period(contract_instance_Voter)
     total_votes = get_total_votes_for_period(current_period, contract_instance_Voter)
     pools_votes_per_period = {}
     try:
-        for pool in pools:
-            pool_votes = round(get_pool_votes_for_period(pool["address"], current_period, contract_instance_Voter))
+        for key in pool_dict:
+            pool_votes = round(get_pool_votes_for_period(pool_dict[key]["address"], current_period, contract_instance_Voter))
             perc_votes = round(pool_votes * 100 / total_votes, 2)
-            pools_votes_per_period[pool["symbol"]] = []
-            pools_votes_per_period[pool["symbol"]].append(perc_votes)
+            pools_votes_per_period[pool_dict[key]["symbol"]] = []
+            pools_votes_per_period[pool_dict[key]["symbol"]].append(perc_votes)
 
     except Exception as e:
         print(e)
@@ -360,24 +374,24 @@ def get_list_of_periods(contract_instance_Voter, period_end):
     while period > first_period:
         datum = datetime.utcfromtimestamp(period).strftime('%Y-%m-%d')
         period = period - 604800 # votes were submitted in the period before
-        total_votes = get_total_votes_for_period(period, contract_instance_Voter)
+        #total_votes = get_total_votes_for_period(period, contract_instance_Voter)
         period_data.append({"epoch": datum})
 
     return period_data
 
 
 
-def set_contracts_for_pools(pools, web3, abi_pool, abi_gauge, abi_feedist, abi_bribe):
-    for pool in pools:
+def set_contracts_for_pools(pool_dict, web3, abi_pool, abi_gauge, abi_feedist, abi_bribe):
+    for key in pool_dict:
         try:
-            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pool["address"]), abi=abi_pool)
-            contract_instance_gauge = web3.eth.contract(address=Web3.toChecksumAddress(pool["gauge_address"]),  abi=abi_gauge)
-            contract_instance_feedist = web3.eth.contract(address=Web3.toChecksumAddress(pool["feedist_address"]),  abi=abi_feedist)
-            contract_instance_bribe = web3.eth.contract(address=Web3.toChecksumAddress(pool["bribe_address"]), abi=abi_bribe)
-            pool["contract_pool"] = contract_instance_proxy_pool
-            pool["contract_gauge"] = contract_instance_gauge
-            pool["contract_feedist"] = contract_instance_feedist
-            pool["contract_bribe"] = contract_instance_bribe
+            contract_instance_proxy_pool = web3.eth.contract(address=Web3.toChecksumAddress(pool_dict[key]["address"]), abi=abi_pool)
+            contract_instance_gauge = web3.eth.contract(address=Web3.toChecksumAddress(pool_dict[key]["gauge_address"]),  abi=abi_gauge)
+            contract_instance_feedist = web3.eth.contract(address=Web3.toChecksumAddress(pool_dict[key]["feedist_address"]),  abi=abi_feedist)
+            contract_instance_bribe = web3.eth.contract(address=Web3.toChecksumAddress(pool_dict[key]["bribe_address"]), abi=abi_bribe)
+            pool_dict[key]["contract_pool"] = contract_instance_proxy_pool
+            pool_dict[key]["contract_gauge"] = contract_instance_gauge
+            pool_dict[key]["contract_feedist"] = contract_instance_feedist
+            pool_dict[key]["contract_bribe"] = contract_instance_bribe
         except Exception as e:
             print(e)
 
@@ -406,3 +420,36 @@ def avoid_0_str(number):
         return str(number)
     else:
         return ""
+
+def bribe_pool_add_missing(bribe_pool_data, pool_dict, period, w3, abiERC20):
+    start_period = first_solidly_vote_period_start
+    while period >= start_period:
+        if not (str(period) in bribe_pool_data):
+            pooldata = []
+            for key in pool_dict:
+                bribe_tokens = pool_dict[key]["contract_bribe"].functions.periodRewardsList(period).call()
+
+                for token_address in bribe_tokens:
+                    bribe_amount = pool_dict[key]["contract_bribe"].functions.periodRewardAmount(period, token_address).call()
+                    bribe_token_data = get_token_data(address=token_address, web3=w3, abi=abiERC20)
+                    bribe_amount = bribe_amount / pow(10, bribe_token_data["decimals"])
+                    if (bribe_amount < 10):
+                        bribe_amount = round(bribe_amount, 2)
+                    else:
+                        bribe_amount = round(bribe_amount)
+
+                    bribe_usd = round(bribe_amount * get_token_price(token_address))
+
+                    pooldata.append(
+                        {
+                            "🏊 Pool": pool_dict[key]["name"],
+                            "🪙 Bribe token": bribe_token_data["symbol"],
+                            "💰 Bribe token amount": str(bribe_amount),
+                            "💰 Bribe value ($)": str(bribe_usd),
+                        }
+                    )
+
+            if pooldata:
+                bribe_pool_data[str(period)] = pooldata
+
+        period = period - 604800

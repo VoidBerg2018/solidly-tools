@@ -25,42 +25,53 @@ def show_total_votes_now(contract_instance_Token):
 
 def show_total_votes_over_time():
     current_period = get_active_period(contract_instance_Voter)
-    first_period = first_solidly_vote_period_start + 604800
-    period = current_period
+    first_period = first_solidly_vote_period_start
+    period = first_period
 
     period_data = []
-    while period > first_period:
+    while period <= current_period:
         datum = datetime.utcfromtimestamp(period).strftime('%Y-%m-%d')
-        period = period - 604800    # votes were submitted in the period before
-        total_votes = get_total_votes_for_period(period, contract_instance_Voter)
-        period_data.append({"epoch": datum, "total votes submitted": round(total_votes)})
+        total_votes = get_total_votes_for_period(period - 604800, contract_instance_Voter) # votes were submitted in the period before
+        period_data.append({"epoch": datum, "total votes submitted for that epoch": round(total_votes)})
+        period = period + 604800
 
 
     votes_df = pd.DataFrame(period_data)
 
-   # chart = (
-   #     alt.Chart(votes_df).mark_bar().encode(
-   #         x='epoch',
-   #         y='total votes submitted'
-   #     )
-   # )
-
-    #st.altair_chart(chart)
-    st.bar_chart(votes_df, x="epoch")
+    votes_df.sort_values(by="epoch", axis=0, ascending=False, inplace=True)
+    votes_df_short = votes_df.drop(votes_df.index[len(votes_df)-1])
+   # votes_df.sort_index(ascending=True)
+    st.bar_chart(votes_df_short, x="epoch")
     st.dataframe(votes_df)
 
 
-def show_votes_per_pool_over_time(pools, pools_votes_per_period, contract_instance_Voter):
-    current_period = get_active_period(contract_instance_Voter)
-    period_data = get_list_of_periods(contract_instance_Voter, current_period)
+def show_votes_per_pool_over_time(pool_dict, pools_votes_per_period, contract_instance_Voter):
+    #current_period = get_active_period(contract_instance_Voter)
+    #period_data = get_list_of_periods(contract_instance_Voter, current_period)
 
-    pools_votes_per_period_df = pd.DataFrame(period_data)
+    pool_data_with_period = {}
+    period_data_with_pools = {}
+    for key in pools_votes_per_period:  #iterate over periods
+        datum = datetime.utcfromtimestamp(int(key)+ 604800).strftime('%Y-%m-%d')
+        period_data_with_pools[datum] = pools_votes_per_period[key]
 
-    for pool in pools:
-        pools_votes_per_period_df[pool["symbol"]] = pools_votes_per_period[pool["symbol"]]
 
-    st.bar_chart(pools_votes_per_period_df, x="epoch")
-    st.dataframe(pools_votes_per_period_df)
+        for key in pool_dict:
+            symbol = pool_dict[key]["symbol"]
+            if symbol in period_data_with_pools[datum]:
+                if not symbol in pool_data_with_period:
+                    pool_data_with_period[symbol] = {}
+
+                pool_data_with_period[symbol][datum] = period_data_with_pools[datum][symbol]
+
+
+    period_data_with_pools_df = pd.DataFrame(period_data_with_pools)
+    pool_data_with_period_df = pd.DataFrame(pool_data_with_period)
+
+    st.bar_chart(pool_data_with_period_df)
+    st.bar_chart(period_data_with_pools_df)
+
+    st.dataframe(period_data_with_pools_df)
     
     #create dataframe
     #pools_votes_per_period_df = pd.DataFrame(period_data, symbol_data, vote_data)
@@ -116,13 +127,17 @@ if st.button('Lookup pool votes'):
     st.title("🏊 Votes per pool for next epoch")
 
     ### Get pool list data
-    pool_list = get_all_pools(contractinstance=contract_instance_Voter, web3=w3, abi=config["data"]["abi_Token"])
+    pool_dict = {}
+    # Load pool data
+    pool_dict = load_pool_dict(filename='pools.json')
+    # Add if missing
+    pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=w3,
+                         abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"],
+                         abi_token=config["data"]["abi_Token"])
     # Save pool data
-    # save_pool_list_to_file(filename='pools.json', pools=pool_list)
-    # Read pool data
-    #pool_list = load_pool_list(filename='pools.json')
+    # save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
 
-    poolsvotes = get_pools_votes_for_next_epoch(pool_list, contract_instance_Voter)
+    poolsvotes = get_pools_votes_for_next_epoch(pool_dict, contract_instance_Voter)
     pools_to_display = []
 
     poolsvotes_df = pd.DataFrame(poolsvotes)
@@ -133,14 +148,17 @@ if st.button('Lookup pool votes'):
 
 
     ###Get historical vote data
-    pools_votes_per_period = get_pools_votes_per_period(pool_list, contract_instance_Voter)
+    pools_votes_per_period = {}
+    #Load data
+    pools_votes_per_period = load_pools_votes_per_period(filename="pools_votes_per_period.json")
+    #Add missing
+    pools_votes_per_period_add_missing(pool_dict, pools_votes_per_period, contract_instance_Voter)
     #Save data
     #save_pools_votes_per_period(filename="pools_votes_per_period.json", pools_votes_per_period=pools_votes_per_period)
-    #Load data
-    #pools_votes_per_period = load_pools_votes_per_period(filename="pools_votes_per_period.json")
 
 
-    show_votes_per_pool_over_time(pool_list, pools_votes_per_period, contract_instance_Voter)
+
+    show_votes_per_pool_over_time(pool_dict, pools_votes_per_period, contract_instance_Voter)
 
 
 

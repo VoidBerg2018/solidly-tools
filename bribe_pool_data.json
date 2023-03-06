@@ -1,0 +1,400 @@
+{
+    "1672272000": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - UNIDX/WETH",
+            "💰 Bribe token amount": "2000",
+            "💰 Bribe value ($)": "2000",
+            "🪙 Bribe token": "USDC"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - WETH/DEUS",
+            "💰 Bribe token amount": "25",
+            "💰 Bribe value ($)": "1475",
+            "🪙 Bribe token": "DEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - fBOMB/moSOLID",
+            "💰 Bribe token amount": "2000",
+            "💰 Bribe value ($)": "144",
+            "🪙 Bribe token": "moSOLID"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LQTY/WETH",
+            "💰 Bribe token amount": "5000",
+            "💰 Bribe value ($)": "11981",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LUSD/WETH",
+            "💰 Bribe token amount": "5000",
+            "💰 Bribe value ($)": "11981",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - WBTC/WETH",
+            "💰 Bribe token amount": "0.2",
+            "💰 Bribe value ($)": "313",
+            "🪙 Bribe token": "WETH"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - USDC/DEI",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "2949",
+            "🪙 Bribe token": "DEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - DEI/DEUS",
+            "💰 Bribe token amount": "25",
+            "💰 Bribe value ($)": "1475",
+            "🪙 Bribe token": "DEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - WETH/DEI",
+            "💰 Bribe token amount": "75",
+            "💰 Bribe value ($)": "4424",
+            "🪙 Bribe token": "DEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - moSOLID/WETH",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "4",
+            "🪙 Bribe token": "moSOLID"
+        }
+    ],
+    "1672876800": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - WETH/DEUS",
+            "💰 Bribe token amount": "75",
+            "💰 Bribe value ($)": "4424",
+            "🪙 Bribe token": "DEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - SHIB/WETH",
+            "💰 Bribe token amount": "0.01",
+            "💰 Bribe value ($)": "16",
+            "🪙 Bribe token": "WETH"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - fBOMB/moSOLID",
+            "💰 Bribe token amount": "2000",
+            "💰 Bribe value ($)": "144",
+            "🪙 Bribe token": "moSOLID"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LQTY/WETH",
+            "💰 Bribe token amount": "3000",
+            "💰 Bribe value ($)": "7189",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - SOLID/USDC",
+            "💰 Bribe token amount": "10",
+            "💰 Bribe value ($)": "10",
+            "🪙 Bribe token": "USDC"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "0.01",
+            "💰 Bribe value ($)": "0",
+            "🪙 Bribe token": "SOLID"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "892",
+            "💰 Bribe value ($)": "8722",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - xDEUS/DEUS",
+            "💰 Bribe token amount": "75",
+            "💰 Bribe value ($)": "4371",
+            "🪙 Bribe token": "xDEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LUSD/WETH",
+            "💰 Bribe token amount": "5000",
+            "💰 Bribe value ($)": "11981",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "892",
+            "💰 Bribe value ($)": "8722",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - USDC/DEI",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "2949",
+            "🪙 Bribe token": "DEUS"
+        }
+    ],
+    "1673481600": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - WETH/DEUS",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "2914",
+            "🪙 Bribe token": "xDEUS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "550",
+            "💰 Bribe value ($)": "5378",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LUSD/WETH",
+            "💰 Bribe token amount": "4000",
+            "💰 Bribe value ($)": "9585",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - auraBAL/BAL",
+            "💰 Bribe token amount": "400",
+            "💰 Bribe value ($)": "400",
+            "🪙 Bribe token": "USDC"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "550",
+            "💰 Bribe value ($)": "5378",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - USDC/DEI",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "2914",
+            "🪙 Bribe token": "xDEUS"
+        }
+    ],
+    "1674086400": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - WETH/DEUS",
+            "💰 Bribe token amount": "40",
+            "💰 Bribe value ($)": "2331",
+            "🪙 Bribe token": "xDEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - FXS/frxETH",
+            "💰 Bribe token amount": "200",
+            "💰 Bribe value ($)": "1956",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "400",
+            "💰 Bribe value ($)": "3911",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - SOLID/WETH",
+            "💰 Bribe token amount": "0.02",
+            "💰 Bribe value ($)": "31",
+            "🪙 Bribe token": "WETH"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LUSD/WETH",
+            "💰 Bribe token amount": "8000",
+            "💰 Bribe value ($)": "19169",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "400",
+            "💰 Bribe value ($)": "3911",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - USDC/DEI",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "2914",
+            "🪙 Bribe token": "xDEUS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - USDC/WETH",
+            "💰 Bribe token amount": "1250",
+            "💰 Bribe value ($)": "1250",
+            "🪙 Bribe token": "USDC"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - moSOLID/WETH",
+            "💰 Bribe token amount": "100000",
+            "💰 Bribe value ($)": "0",
+            "🪙 Bribe token": "BLART"
+        }
+    ],
+    "1674691200": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - FXS/frxETH",
+            "💰 Bribe token amount": "200",
+            "💰 Bribe value ($)": "1956",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "400",
+            "💰 Bribe value ($)": "3911",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LUSD/WETH",
+            "💰 Bribe token amount": "8000",
+            "💰 Bribe value ($)": "19169",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - auraBAL/BAL",
+            "💰 Bribe token amount": "60",
+            "💰 Bribe value ($)": "60",
+            "🪙 Bribe token": "USDC"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "400",
+            "💰 Bribe value ($)": "3911",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - USDC/WETH",
+            "💰 Bribe token amount": "1250",
+            "💰 Bribe value ($)": "1250",
+            "🪙 Bribe token": "USDC"
+        }
+    ],
+    "1675296000": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - moSOLID/USDC",
+            "💰 Bribe token amount": "3.72",
+            "💰 Bribe value ($)": "0",
+            "🪙 Bribe token": "moSOLID"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - FXS/frxETH",
+            "💰 Bribe token amount": "50",
+            "💰 Bribe value ($)": "489",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "600",
+            "💰 Bribe value ($)": "5867",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - LUSD/WETH",
+            "💰 Bribe token amount": "8000",
+            "💰 Bribe value ($)": "19169",
+            "🪙 Bribe token": "LQTY"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "250",
+            "💰 Bribe value ($)": "2445",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - GALA/WETH",
+            "💰 Bribe token amount": "500",
+            "💰 Bribe value ($)": "19",
+            "🪙 Bribe token": "GALA"
+        }
+    ],
+    "1675900800": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - FXS/frxETH",
+            "💰 Bribe token amount": "30",
+            "💰 Bribe value ($)": "293",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "700",
+            "💰 Bribe value ($)": "6845",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "270",
+            "💰 Bribe value ($)": "2640",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - USDC/WETH",
+            "💰 Bribe token amount": "1250",
+            "💰 Bribe value ($)": "1250",
+            "🪙 Bribe token": "USDC"
+        }
+    ],
+    "1676505600": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - FXS/frxETH",
+            "💰 Bribe token amount": "10",
+            "💰 Bribe value ($)": "98",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "790",
+            "💰 Bribe value ($)": "7725",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - USDC/USDT",
+            "💰 Bribe token amount": "1400",
+            "💰 Bribe value ($)": "1400",
+            "🪙 Bribe token": "USDC"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDC",
+            "💰 Bribe token amount": "200",
+            "💰 Bribe value ($)": "1956",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "100",
+            "💰 Bribe value ($)": "978",
+            "🪙 Bribe token": "FXS"
+        }
+    ],
+    "1677110400": [
+        {
+            "🏊 Pool": "VolatileV2 AMM - FXS/frxETH",
+            "💰 Bribe token amount": "10",
+            "💰 Bribe value ($)": "98",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "800",
+            "💰 Bribe value ($)": "7823",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDC",
+            "💰 Bribe token amount": "70",
+            "💰 Bribe value ($)": "684",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "StableV2 AMM - FRAX/USDT",
+            "💰 Bribe token amount": "70",
+            "💰 Bribe value ($)": "684",
+            "🪙 Bribe token": "FXS"
+        },
+        {
+            "🏊 Pool": "VolatileV2 AMM - frxETH/FRAX",
+            "💰 Bribe token amount": "100",
+            "💰 Bribe value ($)": "978",
+            "🪙 Bribe token": "FXS"
+        }
+    ],
+    "1677715200": [
+        {
+            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
+            "💰 Bribe token amount": "1.0",
+            "💰 Bribe value ($)": "3",
+            "🪙 Bribe token": "SOLID"
+        }
+    ]
+}

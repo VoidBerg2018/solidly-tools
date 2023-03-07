@@ -27,6 +27,20 @@
         "token1_decimals": 18,
         "token1_symbol": "WETH"
     },
+    "0x0F671104e68B9F56c29A2BA4A22288C6499D71aB": {
+        "address": "0x0F671104e68B9F56c29A2BA4A22288C6499D71aB",
+        "bribe_address": "0xa6703B6C5E1F76DC69007e5830703Ff12E672d38",
+        "feedist_address": "0x9084e8cd26b6D67Cb4752ff4e6a85C24CEf255B0",
+        "gauge_address": "0x5604890Cd80FBbEB6eF98C8BAe9b6BD53b8b218b",
+        "name": "VolatileV2 AMM - o1/WETH",
+        "symbol": "vAMM-o1/WETH",
+        "token0_address": "0x9333D3983d8AF4f233F9B185ea4567bEDfAF26AD",
+        "token0_decimals": 18,
+        "token0_symbol": "o1",
+        "token1_address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "token1_decimals": 18,
+        "token1_symbol": "WETH"
+    },
     "0x0dF99E55FD9F829A2a57097dA4469925e90aB8c3": {
         "address": "0x0dF99E55FD9F829A2a57097dA4469925e90aB8c3",
         "bribe_address": "0xe458B32a21320d539941836995D6c059988f40CA",

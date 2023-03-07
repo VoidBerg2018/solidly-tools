@@ -295,8 +295,20 @@ def load_pool_dict(filename):
         pools = json.load(data_file)
     return pools
 
+def load_pool_fees(filename):
+    with open(filename) as data_file:
+        pools = json.load(data_file)
+    return pools
+
+
+
 def save_bribe_pool_dict_to_file(filename, pools):
     with open(filename, 'w',encoding="utf-8") as f:
+        json.dump(pools, f, sort_keys=True, indent=4, ensure_ascii=False)
+        print(filename +" saved!")
+
+def save_pool_fees_to_file(filename, pools):
+    with open(filename, 'w') as f:
         json.dump(pools, f, sort_keys=True, indent=4, ensure_ascii=False)
         print(filename +" saved!")
 
@@ -417,7 +429,7 @@ def get_token_data(address, web3, abi):
 
 def avoid_0_str(number):
     if number>0:
-        return str(number)
+        return '{:,}'.format(number)
     else:
         return ""
 
@@ -453,3 +465,60 @@ def bribe_pool_add_missing(bribe_pool_data, pool_dict, period, w3, abiERC20):
                 bribe_pool_data[str(period)] = pooldata
 
         period = period - 604800
+
+
+def pool_fees_add_missing(pool_dict, pool_fees, contract_instance_Voter):
+    current_period = get_active_period(contract_instance_Voter)
+    first_period = first_solidly_vote_period_start
+    for key in pool_dict:
+        period = current_period
+        if not key in pool_fees:
+            pool_fees[key] = {}
+        while period >= first_period:
+            try:
+                # for each period
+                if not str(period) in pool_fees[key]:
+                    pool_fees[key][str(period)] = {}
+
+                    fees_token0 = pool_dict[key]["contract_feedist"].functions.periodRewardAmount(period, pool_dict[key]["token0_address"]).call()
+                    fees_token1 = pool_dict[key]["contract_feedist"].functions.periodRewardAmount(period, pool_dict[key]["token1_address"]).call()
+                    fees_token0 = round(fees_token0 / pow(10, pool_dict[key]["token0_decimals"]), 2)
+                    fees_token1 = round(fees_token1 / pow(10, pool_dict[key]["token1_decimals"]), 2)
+
+                    pool_fees[key][str(period)] = {"fees_token0":fees_token0,"fees_token1":fees_token1}
+
+                period = period - 604800
+
+            except Exception as e:
+                print(e)
+
+
+
+def get_historical_pool_data(web3, contract_instance_Voter, config):
+    pool_dict = {}
+    # Load pool data
+    pool_dict = load_pool_dict(filename='pools.json')
+    # Add if missing
+    pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=web3,
+                      abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"],
+                      abi_token=config["data"]["abi_Token"])
+    # Save pool data
+    # save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
+    return pool_dict
+
+def get_historical_bribe_pool_data(web3, pool_dict, contract_instance_Voter, config):
+    bribe_pool_data = {}
+    bribe_pool_data = load_bribe_pool_dict(filename='bribe_pool_data.json')
+    # Add missing
+    current_period = get_active_period(contract_instance_Voter)
+    bribe_pool_add_missing(bribe_pool_data=bribe_pool_data, pool_dict=pool_dict, period=current_period, w3=web3,
+                           abiERC20=config["data"]["abi_ERC20"])
+    # save_bribe_pool_dict_to_file(filename='bribe_pool_data.json', pools=bribe_pool_data)
+    return bribe_pool_data
+
+def get_historical_pool_fees_data(pool_dict, contract_instance_Voter):
+    pool_fees = {}
+    pool_fees = load_pool_fees(filename='pool_fees.json')
+    pool_fees_add_missing(pool_dict, pool_fees, contract_instance_Voter)
+    # save_pool_fees_to_file(filename='pool_fees.json', pools=pool_fees)
+    return pool_fees

@@ -36,53 +36,39 @@ except Exception as e:
 st.title("💸 Pool fees history")
 
 ### Get pool list data
-pool_dict = {}
-# Load pool data
-pool_dict = load_pool_dict(filename='pools.json')
-# Add if missing
-pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_token=config["data"]["abi_Token"])
-# Save pool data
-#save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
+pool_dict = get_historical_pool_data(web3=w3, contract_instance_Voter=contract_instance_Voter, config=config)
+set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
 
-
-
-try:
-    w3 = Web3(Web3.HTTPProvider(config["data"]["provider_url"]))
-    set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
-except Exception as e:
-    print(e)
-    st.markdown("Error Please Try Again")
-
-
+##get fee data
+pool_fees = get_historical_pool_fees_data(pool_dict=pool_dict, contract_instance_Voter=contract_instance_Voter)
 
 
 for key in pool_dict:
     st.caption("Pool fees for " + pool_dict[key]["name"])
-    first_period = first_solidly_vote_period_start
+    start_period = first_solidly_vote_period_start
     period = get_active_period(contract_instance_Voter)
     pooldata = []
-    while period > first_period:
-        fees_token0 = pool_dict[key]["contract_feedist"].functions.periodRewardAmount(period, pool_dict[key]["token0_address"]).call()
-        fees_token1 = pool_dict[key]["contract_feedist"].functions.periodRewardAmount(period, pool_dict[key]["token1_address"]).call()
+    while start_period <= period:
+        fees_token0 = pool_fees[key][str(start_period)]["fees_token0"]
+        fees_token1 = pool_fees[key][str(start_period)]["fees_token1"]
 
-        fees_token0 = round(fees_token0 / pow(10, pool_dict[key]["token0_decimals"]), 2)
-        fees_token1 = round(fees_token1 / pow(10, pool_dict[key]["token1_decimals"]), 2)
         fees_token0_usd = fees_token0 * get_token_price(pool_dict[key]["token0_address"])
         fees_token1_usd = fees_token1 * get_token_price(pool_dict[key]["token1_address"])
 
         sum_fees_usd = round(fees_token0_usd + fees_token1_usd)
         pooldata.append(
             {
-                "🕰️ Epoch": datetime.utcfromtimestamp(period).strftime('%Y-%m-%d'),
+                "🕰️ Epoch": datetime.utcfromtimestamp(start_period).strftime('%Y-%m-%d'),
                 "🪙 "+pool_dict[key]["token0_symbol"]: str(fees_token0),
                 "🪙 "+pool_dict[key]["token1_symbol"]: str(fees_token1),
                 "💵 Sum ($) ": str(sum_fees_usd)
             }
         )
-        period = period - 604800
+        start_period = start_period + 604800
 
     if pooldata:
         fees_df = pd.DataFrame(pooldata)
+        fees_df.sort_values(by="🕰️ Epoch", axis=0, ascending=False, inplace=True)
         # st.bar_chart(votes_df, x="epoch")
         st.dataframe(fees_df)
 

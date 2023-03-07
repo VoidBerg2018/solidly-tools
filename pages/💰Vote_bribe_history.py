@@ -36,28 +36,11 @@ except Exception as e:
 st.title("💰 Vote bribe history")
 
 ### Get pool list data
-pool_dict = {}
-# Load pool data
-pool_dict = load_pool_dict(filename='pools.json')
-# Add if missing
-pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_token=config["data"]["abi_Token"])
-# Save pool data
-#save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
+pool_dict = get_historical_pool_data(web3=w3, contract_instance_Voter=contract_instance_Voter, config=config)
+set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
 
-try:
-    w3 = Web3(Web3.HTTPProvider(config["data"]["provider_url"]))
-    set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
-except Exception as e:
-    print(e)
-    st.markdown("Error Please Try Again")
-
-
-bribe_pool_data = {}
-bribe_pool_data = load_bribe_pool_dict(filename='bribe_pool_data.json')
-#Add missing
-current_period = get_active_period(contract_instance_Voter)
-bribe_pool_add_missing(bribe_pool_data=bribe_pool_data, pool_dict=pool_dict, period=current_period, w3=w3, abiERC20=config["data"]["abi_ERC20"])
-#save_bribe_pool_dict_to_file(filename='bribe_pool_data.json', pools=bribe_pool_data)
+##get bribe data
+bribe_pool_data = get_historical_bribe_pool_data(web3=w3, pool_dict=pool_dict, contract_instance_Voter=contract_instance_Voter, config=config)
 
 bribe_pool_data = dict(reversed(bribe_pool_data.items()))
 for key in bribe_pool_data:

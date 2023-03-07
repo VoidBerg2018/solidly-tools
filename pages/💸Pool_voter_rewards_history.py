@@ -10,42 +10,35 @@ from veSolidfunctions import *
 import json
 
 
-def display_pool_rewards(pool):
+def display_pool_rewards(pool, pool_fees, bribe_pool_data, current_period):
     if pool:
         st.caption("Voter rewards for " + pool["name"])
-        first_period = first_solidly_vote_period_start
-        period = get_active_period(contract_instance_Voter)
+        start_period = first_solidly_vote_period_start
+
         pooldata = []
         index = 0
-        while period > first_period:
-            fees_token0 = pool["contract_feedist"].functions.periodRewardAmount(period, pool["token0_address"]).call()
-            fees_token1 = pool["contract_feedist"].functions.periodRewardAmount(period, pool["token1_address"]).call()
+        while start_period <= current_period:
+            key = pool["address"]
+            fees_token0 = pool_fees[key][str(start_period)]["fees_token0"]
+            fees_token1 = pool_fees[key][str(start_period)]["fees_token1"]
 
-            fees_token0 = round(fees_token0 / pow(10, pool["token0_decimals"]), 2)
-            fees_token1 = round(fees_token1 / pow(10, pool["token1_decimals"]), 2)
-            fees_token0_usd = fees_token0 * get_token_price(pool["token0_address"])
-            fees_token1_usd = fees_token1 * get_token_price(pool["token1_address"])
+            fees_token0_usd = fees_token0 * get_token_price(pool_dict[key]["token0_address"])
+            fees_token1_usd = fees_token1 * get_token_price(pool_dict[key]["token1_address"])
 
             sum_fees_usd = round(fees_token0_usd + fees_token1_usd)
 
             sum_bribes_usd = 0
             bribe_string = ""
-            bribe_tokens = pool["contract_bribe"].functions.periodRewardsList(period).call()
-            for token_address in bribe_tokens:
-                bribe_amount = pool["contract_bribe"].functions.periodRewardAmount(period, token_address).call()
-                bribe_token_data = get_token_data(address=token_address, web3=w3, abi=config["data"]["abi_ERC20"])
-                bribe_amount = bribe_amount / pow(10, bribe_token_data["decimals"])
-                if (bribe_amount < 10):
-                    bribe_amount = round(bribe_amount, 2)
-                else:
-                    bribe_amount = round(bribe_amount)
 
-                bribe_usd = round(bribe_amount * get_token_price(token_address))
+            bribe_period = str(start_period - 604800)
+            if bribe_period in bribe_pool_data:
+                for entry in bribe_pool_data[bribe_period]:
+                    if entry["🏊 Pool"] == pool["name"]:
+                        bribe_string = bribe_string + entry["💰 Bribe token amount"] + " " + entry["🪙 Bribe token"] + " "
+                        sum_bribes_usd = sum_bribes_usd + int(entry["💰 Bribe value ($)"])
 
-                bribe_string = bribe_string + str(bribe_amount) + " " + bribe_token_data["symbol"] + " "
-                sum_bribes_usd = sum_bribes_usd + bribe_usd
 
-            pool_votes = round(get_pool_votes_for_period(pool["address"], period, contract_instance_Voter))
+            pool_votes = round(get_pool_votes_for_period(pool["address"], start_period- 604800, contract_instance_Voter))
             sum_sum = round(sum_fees_usd + sum_bribes_usd)
             rewards_per_votes = 0
             if (pool_votes > 0):
@@ -56,7 +49,7 @@ def display_pool_rewards(pool):
 
             apr_per_votes = round(((rewards_per_votes * 52) / (get_solid_price() * 10000)) * 100, 2)
 
-            epochstart = datetime.utcfromtimestamp(period + 604800).strftime('%Y-%m-%d')
+            epochstart = datetime.utcfromtimestamp(start_period ).strftime('%Y-%m-%d')
            # if index == 0:
             #    epochstart = datetime.utcfromtimestamp(period + 604800).strftime('%Y-%m-%d') + " (upcoming)"
            # if index == 1:
@@ -76,11 +69,12 @@ def display_pool_rewards(pool):
                     "✨ APR (%) for 10k votes ": avoid_0_str(apr_per_votes)
                 }
             )
-            period = period - 604800
+            start_period = start_period + 604800
             index = index + 1
 
         if pooldata:
             fees_df = pd.DataFrame(pooldata)
+            fees_df.sort_values(by="🕰️ Epoch starting at", axis=0, ascending=False, inplace=True)
             # st.bar_chart(votes_df, x="epoch")
             st.dataframe(fees_df)
 
@@ -114,26 +108,21 @@ st.title("💸 Pool voter rewards history")
 SOLID_price = get_solid_price()
 st.markdown("💵 Current SOLID price: " + '{:,}'.format(round(SOLID_price, 2)))
 
-### Get pool list data
-pool_dict = {}
-# Load pool data
-pool_dict = load_pool_dict(filename='pools.json')
-# Add if missing
-pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_token=config["data"]["abi_Token"])
-# Save pool data
-#save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
-
+### Get pool data
+pool_dict = get_historical_pool_data(web3=w3, contract_instance_Voter=contract_instance_Voter, config=config)
+set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
+##get bribe and fee data
+bribe_pool_data = get_historical_bribe_pool_data(web3=w3, pool_dict=pool_dict, contract_instance_Voter=contract_instance_Voter, config=config)
+pool_fees = get_historical_pool_fees_data(pool_dict=pool_dict, contract_instance_Voter=contract_instance_Voter)
 
 try:
-    w3 = Web3(Web3.HTTPProvider(config["data"]["provider_url"]))
-    set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"], abi_feedist=config["data"]["abi_Feedist"], abi_bribe=config["data"]["abi_Bribe"])
-
-    display_pool_rewards(get_pool_from_dict("vAMM-SOLID/WETH", pool_dict))
-    display_pool_rewards(get_pool_from_dict("sAMM-FRAX/USDT", pool_dict))
-    display_pool_rewards(get_pool_from_dict("sAMM-FRAX/USDC", pool_dict))
-    display_pool_rewards(get_pool_from_dict("sAMM-frxETH/WETH", pool_dict))
-    display_pool_rewards(get_pool_from_dict("vAMM-FXS/frxETH", pool_dict))
-    display_pool_rewards(get_pool_from_dict("vAMM-BLUR/WETH", pool_dict))
+    current_period = get_active_period(contract_instance_Voter)
+    display_pool_rewards(pool=get_pool_from_dict("vAMM-SOLID/WETH", pool_dict), pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
+    display_pool_rewards(pool=get_pool_from_dict("sAMM-FRAX/USDT", pool_dict), pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
+    display_pool_rewards(pool=get_pool_from_dict("sAMM-FRAX/USDC", pool_dict), pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
+    display_pool_rewards(pool=get_pool_from_dict("sAMM-frxETH/WETH", pool_dict), pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
+    display_pool_rewards(pool=get_pool_from_dict("vAMM-FXS/frxETH", pool_dict), pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
+    display_pool_rewards(pool=get_pool_from_dict("vAMM-BLUR/WETH", pool_dict), pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
 
 except Exception as e:
     print(e)
@@ -142,7 +131,7 @@ except Exception as e:
 if st.button('Lookup all pools'):
     try:
         for key in pool_dict:
-            display_pool_rewards(pool_dict[key])
+            display_pool_rewards(pool_dict[key],  pool_fees=pool_fees, bribe_pool_data=bribe_pool_data, current_period=current_period)
     except Exception as e:
         print(e)
         st.markdown("Error Please Try Again")

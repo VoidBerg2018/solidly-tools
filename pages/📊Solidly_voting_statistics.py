@@ -126,16 +126,8 @@ if st.button('Lookup pool votes'):
     # Title
     st.title("🏊 Votes per pool for next epoch")
 
-    ### Get pool list data
-    pool_dict = {}
-    # Load pool data
-    pool_dict = load_pool_dict(filename='pools.json')
-    # Add if missing
-    pools_add_missing(pool_dict, contractinstance=contract_instance_Voter, web3=w3,
-                         abi_pool=config["data"]["abi_Pool"], abi_gauge=config["data"]["abi_Gauge"],
-                         abi_token=config["data"]["abi_Token"])
-    # Save pool data
-    # save_pool_dict_to_file(filename='pools.json', pools=pool_dict)
+    ### Get pool data
+    pool_dict = get_historical_pool_data(web3=w3, contract_instance_Voter=contract_instance_Voter, config=config)
 
     poolsvotes = get_pools_votes_for_next_epoch(pool_dict, contract_instance_Voter)
     pools_to_display = []

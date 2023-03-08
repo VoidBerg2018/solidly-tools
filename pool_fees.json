@@ -35,10 +35,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x0F3BF0880333d80f54996A79a0e6c60BCf1dca0a": {
@@ -75,10 +71,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -119,10 +111,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x0dF99E55FD9F829A2a57097dA4469925e90aB8c3": {
@@ -159,10 +147,6 @@
             "fees_token1": 6.64
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -203,10 +187,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x137229A08fd848EB8795a625a1a916387DEbFa20": {
@@ -243,10 +223,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -287,10 +263,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x16816ab8a85258a0c1E25F6005d4d5bd62Ac383A": {
@@ -327,10 +299,6 @@
             "fees_token1": 120.84
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -371,10 +339,6 @@
         "1677110400": {
             "fees_token0": 468.11,
             "fees_token1": 0.67
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x1eD37b848BA777451dF41f5bd6c2EE9ffda0BaD4": {
@@ -413,10 +377,6 @@
         "1677110400": {
             "fees_token0": 0.52,
             "fees_token1": 0.01
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x2e83dB9161535c94c917cc568868ddfea9ddd6D9": {
@@ -453,10 +413,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -497,10 +453,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x3f18C8C09ca97B7E8C14C09BfFd02E89753Cf602": {
@@ -537,10 +489,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -581,10 +529,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x48187E512F5338F06222AC574576744129736eFD": {
@@ -623,10 +567,6 @@
         "1677110400": {
             "fees_token0": 46.43,
             "fees_token1": 0.01
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x4E30fc7ccD2dF3ddCA39a69d2085334Ee63b9c96": {
@@ -663,10 +603,6 @@
             "fees_token1": 0.03
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -707,10 +643,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x5F4A0F647754842912724411eC426933D3dF5ADa": {
@@ -747,10 +679,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -791,10 +719,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x642431623AE5d73C19fC931aAeA0d4677303880c": {
@@ -833,10 +757,6 @@
         "1677110400": {
             "fees_token0": 3091.94,
             "fees_token1": 5.46
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x6B570efd05eEd815fdA38F6405395B552C8D11b8": {
@@ -873,10 +793,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -917,10 +833,6 @@
         "1677110400": {
             "fees_token0": 142.06,
             "fees_token1": 0.09
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x756a5188E7E5E565deD665aF53CD079Be727b18C": {
@@ -957,10 +869,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1001,10 +909,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x79CE6f51087A159F0C706E5C4B72d6BaAAD1b3Df": {
@@ -1041,10 +945,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1085,10 +985,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x9453AAC812B0cd8FD069940002712dbF7d48431c": {
@@ -1127,10 +1023,6 @@
         "1677110400": {
             "fees_token0": 1116.94,
             "fees_token1": 0.06
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0x97F088b0175A7319059d8e705286aA035077d624": {
@@ -1167,10 +1059,6 @@
             "fees_token1": 22.53
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1211,10 +1099,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xC5c4e5D9663dAE2103973474FC2993E9dC0Df9a3": {
@@ -1251,10 +1135,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1295,10 +1175,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xEb9dC7087607be7D7C3Ccbb4544347dE1354720c": {
@@ -1335,10 +1211,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1379,10 +1251,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xF5e9a4805f0d194C7E0Db0bB6723bBa4F3358eC4": {
@@ -1419,10 +1287,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1463,10 +1327,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xb5A5D157ACE07f1d40a46882e1bA2ba06315Af64": {
@@ -1503,10 +1363,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1547,10 +1403,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xc7ed724499946C8d12F57330c0d2D25Af219AdF8": {
@@ -1587,10 +1439,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1631,10 +1479,6 @@
         "1677110400": {
             "fees_token0": 9577.9,
             "fees_token1": 3.55
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xd05a3DFF62a77Da1dcBE1c878E893603b9f729C1": {
@@ -1671,10 +1515,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }
@@ -1715,10 +1555,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xed82dE5C52b2CdeB3FeEd2a4a7f87d60300E19b5": {
@@ -1757,10 +1593,6 @@
         "1677110400": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
-        },
-        "1677715200": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
         }
     },
     "0xf5E4b5f58703582Ad142B15E6c303dbB3CF7dE8a": {
@@ -1797,10 +1629,6 @@
             "fees_token1": 0.0
         },
         "1677110400": {
-            "fees_token0": 0.0,
-            "fees_token1": 0.0
-        },
-        "1677715200": {
             "fees_token0": 0.0,
             "fees_token1": 0.0
         }

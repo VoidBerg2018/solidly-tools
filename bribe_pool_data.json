@@ -388,13 +388,5 @@
             "💰 Bribe value ($)": "978",
             "🪙 Bribe token": "FXS"
         }
-    ],
-    "1677715200": [
-        {
-            "🏊 Pool": "StableV2 AMM - frxETH/WETH",
-            "💰 Bribe token amount": "1.0",
-            "💰 Bribe value ($)": "3",
-            "🪙 Bribe token": "SOLID"
-        }
     ]
 }

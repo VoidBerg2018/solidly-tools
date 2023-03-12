@@ -42,7 +42,7 @@ set_contracts_for_pools(pool_dict=pool_dict, web3=w3, abi_pool=config["data"]["a
 ##get bribe data
 bribe_pool_data = get_historical_bribe_pool_data(web3=w3, pool_dict=pool_dict, contract_instance_Voter=contract_instance_Voter, config=config)
 
-bribe_pool_data = dict(reversed(bribe_pool_data.items()))
+bribe_pool_data = dict(reversed(sorted(bribe_pool_data.items())))
 for key in bribe_pool_data:
     epoch = round(((int(key)+604800 - 1672272000)/604800))
     st.caption("Vote bribes for epoch "+str(epoch)+" starting at " + datetime.utcfromtimestamp(int(key)+604800).strftime('%Y-%m-%d'))

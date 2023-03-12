@@ -94,7 +94,7 @@ def get_eth_price():
     return ETH_price
 
 def get_token_price_firebird(token_address):
-    price = 0
+    price = 1
     token_address = str(token_address).lower()
     params = {
         "from": token_address,
